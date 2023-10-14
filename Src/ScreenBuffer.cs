@@ -14,7 +14,7 @@ public class ScreenBuffer
     readonly char[][] _buffer;
     public void DrawToBuffer(string str, int y = 0, int x = 0)
     {
-        if (y >= _height || x + str.Length >= _width)
+        if (y > _height || x + str.Length > _width)
         {
             return;
         }
@@ -56,7 +56,7 @@ public class ScreenBuffer
         _buffer = new char[_height][];
         for (int iy = 0; iy < _height; iy++)
         {
-            _buffer[iy] = new char[_height];
+            _buffer[iy] = new char[_width];
             Array.Fill(_buffer[iy], ' ');
         }
     }

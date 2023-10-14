@@ -1,17 +1,12 @@
 ﻿using ElevatorSystem.Src.Graphics;
 using ElevatorSystem.Src.GuiObjects;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ElevatorSystem.Src;
 
-public class ElevatorStateHandler
+public class BuildingState
 {
-    readonly int _floors;
     int _idCount = 0;
+    int[] _floors = new int[Console.WindowHeight / 5];
     readonly ScreenBuffer _buffer;
     readonly Graphic _humanGraphic;
     readonly Elevator[] _elevators = new Elevator[2];
@@ -19,6 +14,10 @@ public class ElevatorStateHandler
     List<GuiObject> GraphicObjects() => _elevators.Cast<GuiObject>().Concat(_humans.Cast<GuiObject>()).ToList();
     public void Tick()
     {
+        foreach (int floor in _floors)
+        {
+            _buffer.DrawToBuffer(new string('_', Console.WindowWidth), floor);
+        }
         foreach (var graphicObj in GraphicObjects())
         {
             graphicObj.Draw();
@@ -29,7 +28,7 @@ public class ElevatorStateHandler
     {
         _humans.Add(new Human(_humanGraphic, _idCount++));
     }
-    public ElevatorStateHandler()
+    public BuildingState()
     {
         _buffer = ScreenBuffer.GetInstance();
         var graphic = new Graphic("../../../Assets/Elevator.txt", _buffer);
@@ -37,6 +36,11 @@ public class ElevatorStateHandler
         for (int i = 0; i < _elevators.Length; i++)
         {
             _elevators[i] = new Elevator(graphic, _idCount++);
+        }
+
+        for (int i = 0; i < _floors.Length; i++)
+        {
+            _floors[i] = Console.WindowHeight - 1 - (5 * i);
         }
     }
 }
