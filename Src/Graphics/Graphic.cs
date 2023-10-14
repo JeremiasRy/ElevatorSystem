@@ -4,20 +4,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ElevatorSystem.Src.Graphic;
+namespace ElevatorSystem.Src.Graphics;
 
 public class Graphic
 {
     readonly PicturePixel[] _picture;
     readonly ScreenBuffer _screenBuffer;
-    readonly int _y = 0;
-    readonly int _x = 0;
-
-    public void Draw()
+    public void Draw(int y, int x)
     {
         foreach (var pixel in _picture)
         {
-            _screenBuffer.DrawToBuffer(pixel.Ch, _y + pixel.OffsetY, _x + pixel.OffsetX);
+            _screenBuffer.DrawToBuffer(pixel.Ch, y + pixel.OffsetY, x + pixel.OffsetX);
         }
     }
     public Graphic(string filePath, ScreenBuffer buffer)
