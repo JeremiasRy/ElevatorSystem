@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ElevatorSystem;
+namespace ElevatorSystem.Src;
 
 public class ScreenBuffer
 {
@@ -39,8 +39,9 @@ public class ScreenBuffer
             Console.WriteLine(_buffer[i]);
             Array.Fill(_buffer[i], ' '); // Clear buffer while we are looping throug it
         }
+        Console.SetCursorPosition(0, 0);
     }
-    
+
     void ClearBuffer()
     {
         for (int iy = 0; iy < _height; iy++)
@@ -48,9 +49,9 @@ public class ScreenBuffer
             Array.Fill(_buffer[iy], ' ');
         }
     }
-    private ScreenBuffer() 
-    { 
-        _height = Console.WindowHeight; 
+    private ScreenBuffer()
+    {
+        _height = Console.WindowHeight;
         _width = Console.WindowWidth;
         _buffer = new char[_height][];
         for (int iy = 0; iy < _height; iy++)

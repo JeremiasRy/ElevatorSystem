@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ElevatorSystem;
+namespace ElevatorSystem.Src.Graphic;
 
 class PicturePixel
 {
@@ -15,7 +15,7 @@ class PicturePixel
     public PicturePixel(int y, int x, char ch)
     {
         OffsetX = x;
-        OffsetY = y; 
+        OffsetY = y;
         Ch = ch;
     }
 }

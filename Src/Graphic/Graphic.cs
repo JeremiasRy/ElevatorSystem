@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ElevatorSystem;
+namespace ElevatorSystem.Src.Graphic;
 
 public class Graphic
 {
@@ -13,7 +13,7 @@ public class Graphic
     readonly int _y = 0;
     readonly int _x = 0;
 
-    public void Draw() 
+    public void Draw()
     {
         foreach (var pixel in _picture)
         {
@@ -33,11 +33,11 @@ public class Graphic
             count += line.Length;
         }
         _picture = new PicturePixel[count];
-        
+
         count = 0;
         for (int iy = 0; iy < lines.Count; iy++)
         {
-            for (int ix = 0;  ix < lines[iy].Length; ix++)
+            for (int ix = 0; ix < lines[iy].Length; ix++)
             {
                 _picture[count++] = new PicturePixel(iy, ix, lines[iy].ElementAt(ix));
             }
