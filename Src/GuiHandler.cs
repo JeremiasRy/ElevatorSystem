@@ -3,22 +3,26 @@ using ElevatorSystem.Src.GuiObjects;
 
 namespace ElevatorSystem.Src;
 
-public class BuildingState
+public class GuiHandler
 {
-    private const int SHAFT_PADDING = 2;
-    private const int ELEVATOR_COUNT = 2;
-    private const int SHAFT_WIDTH = 11;
+    public const int SHAFT_PADDING = 2;
+    public const int ELEVATOR_COUNT = 2;
+    public const int SHAFT_WIDTH = 12;
+    public const int ELEVATOR_HEIGHT = 5;
     int _idCount = 0;
-    readonly int[] _floors = new int[Console.WindowHeight / 5];
     readonly int[] _shafts = new int[4];
+    readonly List<Floor> _floors;
+    readonly List<Elevator> _elevators;
     readonly ScreenBuffer _buffer;
     readonly Graphic _humanGraphic;
-    readonly Elevator[] _elevators = new Elevator[2];
     readonly List<Human> _humans = new();
+
+    readonly ElevatorStateHandler _elevatorHandler;
     List<GuiObject> GraphicObjects() => _elevators.Cast<GuiObject>().Concat(_humans.Cast<GuiObject>()).ToList();
     public void Tick()
     {
         DrawBackground();
+        _elevatorHandler.MoveElevatorsToPlace();
         foreach (var graphicObj in GraphicObjects())
         {
             graphicObj.Draw();
@@ -38,7 +42,7 @@ public class BuildingState
                 _buffer.DrawToBuffer('|', i, shaft);
             }
         }
-        foreach (int floor in _floors)
+        foreach (int floor in _floors.Select(floor => floor.Y))
         {
             var floorStringStart = new string('_', _shafts[0]);
             var floorStringEnd = new string('_', Console.WindowWidth - 1 - _shafts[^1]);
@@ -46,25 +50,29 @@ public class BuildingState
             _buffer.DrawToBuffer(floorStringEnd, floor, _shafts[^1] + 1);
         }
     }
-    public BuildingState()
+    public GuiHandler()
     {
+        _floors = new List<Floor>(Console.WindowHeight / 5);
+        _elevators = new List<Elevator>(ELEVATOR_COUNT);
         _buffer = ScreenBuffer.GetInstance();
         var graphic = new Graphic("../../../Assets/Elevator.txt", _buffer);
         _humanGraphic = new Graphic("../../../Assets/Human.txt", _buffer);
-        for (int i = 0; i < _elevators.Length; i++)
+
+        int elevatorShaftStartIndex = (Console.WindowWidth - 1) / ELEVATOR_COUNT - ((SHAFT_WIDTH * 2 + SHAFT_PADDING) / 2);
+        _shafts[0] = elevatorShaftStartIndex;
+        _shafts[1] = elevatorShaftStartIndex + SHAFT_WIDTH;
+        _shafts[2] = elevatorShaftStartIndex + SHAFT_WIDTH + SHAFT_PADDING;
+        _shafts[3] = elevatorShaftStartIndex + SHAFT_WIDTH * 2 + SHAFT_PADDING;
+
+        for (int i = 0; i < _floors.Capacity; i++)
         {
-            _elevators[i] = new Elevator(graphic, _idCount++);
+            _floors.Add(new Floor(Console.WindowHeight - 1 - (5 * i), i, _shafts));
         }
 
-        for (int i = 0; i < _floors.Length; i++)
+        for (int i = 0; i < _elevators.Capacity; i++)
         {
-            _floors[i] = Console.WindowHeight - 1 - (5 * i);
+            _elevators.Add(new Elevator(graphic, _idCount++, i, 0));
         }
-
-        int startIndex = (Console.WindowWidth - 1) / ELEVATOR_COUNT - ((SHAFT_WIDTH * 2 + SHAFT_PADDING) / 2);
-        _shafts[0] = startIndex;
-        _shafts[1] = startIndex + 11;
-        _shafts[2] = startIndex + 11 + 2;
-        _shafts[3] = startIndex + 11 + 2 + 11;
+        _elevatorHandler = new ElevatorStateHandler(_floors, _elevators);
     }
 }

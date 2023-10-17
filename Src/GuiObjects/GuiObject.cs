@@ -10,10 +10,10 @@ namespace ElevatorSystem.Src.GuiObjects;
 public class GuiObject
 {
     readonly int _id;
-    protected readonly int _y = 0;
-    protected readonly int _x = 0;
+    protected int Y { get; set; }
+    protected int X { get; set; }
     private readonly Graphic _graphic;
-    public void Draw() => _graphic.Draw(_y, _x);
+    public void Draw() => _graphic.Draw(Y, X);
     public GuiObject(Graphic graphic, int id)
     {
         _id = id;
