@@ -11,18 +11,41 @@ public class ElevatorStateHandler
 {
     private readonly List<Floor> _floors;
     private readonly List<Elevator> _elevators;
+    private readonly Queue<ElevatorCall> _taskQueue = new();
 
-    public void MoveElevatorsToPlace()
+    public void GiveTaskToElevator()
+    {
+        if (_taskQueue.Count == 0)
+        {
+            return;
+        }
+
+        foreach (var elevator in _elevators)
+        {
+            if (elevator.TaskAtHand.Finished)
+            {
+                elevator.TaskAtHand = _taskQueue.Dequeue();
+            }
+            if (_taskQueue.Count == 0)
+            {
+                break;
+            }
+        }
+    }
+    public void MoveElevatorsTowardsTheirTask()
     {
         foreach (var elevator in _elevators)
         {
-            var (y, x) = _floors.FirstOrDefault(floor => floor.NthFloor == elevator.Floor)!.ElevatorPositions[elevator.ShaftIndex];
-            elevator.Move(y, x);
+            elevator.Move();
         }
     }
-    public void CallElevator(int floor)
+    public void CallElevator(int from, int to)
     {
-        _elevators.First().Floor = floor;
+        _taskQueue.Enqueue(new ElevatorCall()
+        {
+            From = _floors[from].ElevatorPositions.First().y,
+            To = _floors[to].ElevatorPositions.First().y
+        });
     }
     public ElevatorStateHandler(List<Floor> floors, List<Elevator> elevators)
     {

@@ -19,10 +19,15 @@ public class GuiHandler
 
     readonly ElevatorStateHandler _elevatorHandler;
     List<GuiObject> GraphicObjects() => _elevators.Cast<GuiObject>().Concat(_humans.Cast<GuiObject>()).ToList();
+    public void CallElevator(int from, int to)
+    {
+        _elevatorHandler.CallElevator(from, to);
+    }
     public void Tick()
     {
+        _elevatorHandler.GiveTaskToElevator();
+        _elevatorHandler.MoveElevatorsTowardsTheirTask();
         DrawBackground();
-        _elevatorHandler.MoveElevatorsToPlace();
         foreach (var graphicObj in GraphicObjects())
         {
             graphicObj.Draw();
@@ -35,7 +40,7 @@ public class GuiHandler
     }
     void DrawBackground()
     {
-        for (int i = 0; i < Console.WindowHeight; i++)
+        for (int i = 0; i < Console.WindowHeight - 1; i++)
         {
             foreach (int shaft in _shafts)
             {
@@ -52,7 +57,7 @@ public class GuiHandler
     }
     public GuiHandler()
     {
-        _floors = new List<Floor>(Console.WindowHeight / 5);
+        _floors = new List<Floor>((Console.WindowHeight - 1) / 5);
         _elevators = new List<Elevator>(ELEVATOR_COUNT);
         _buffer = ScreenBuffer.GetInstance();
         var graphic = new Graphic("../../../Assets/Elevator.txt", _buffer);
@@ -66,12 +71,13 @@ public class GuiHandler
 
         for (int i = 0; i < _floors.Capacity; i++)
         {
-            _floors.Add(new Floor(Console.WindowHeight - 1 - (5 * i), i, _shafts));
+            _floors.Add(new Floor(Console.WindowHeight - 2 - (5 * i), i, _shafts));
         }
 
         for (int i = 0; i < _elevators.Capacity; i++)
         {
-            _elevators.Add(new Elevator(graphic, _idCount++, i, 0));
+            var (y, x) = _floors.First().ElevatorPositions[i];
+            _elevators.Add(new Elevator(graphic, _idCount++, y, x));
         }
         _elevatorHandler = new ElevatorStateHandler(_floors, _elevators);
     }
