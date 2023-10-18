@@ -2,6 +2,7 @@
 using ElevatorSystem.Src;
 Console.CursorVisible = false;
 var state = new MasterState();
+
 state.CallElevator(7, 0);
 state.CallElevator(6, 0);
 state.CallElevator(5, 0);

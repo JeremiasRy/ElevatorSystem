@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace ElevatorSystem.Src;
-
 public class Floor
 {
     public int NthFloor { get; set; }

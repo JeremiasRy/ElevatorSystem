@@ -12,6 +12,7 @@ public class ScreenBuffer
     readonly int _rows;
     readonly int _columns;
     readonly char[] _buffer;
+
     int GetIndex(int row, int column) => row * _columns + column;
     public void DrawToBuffer(string str, int row = 0, int col = 0)
     {
@@ -37,7 +38,6 @@ public class ScreenBuffer
         Console.SetCursorPosition(0, 0);
         ClearBuffer();
     }
-
     void ClearBuffer() => Array.Fill(_buffer, ' ');
     private ScreenBuffer()
     {
@@ -45,7 +45,6 @@ public class ScreenBuffer
         _columns = Console.WindowWidth;
         _buffer = new char[_rows * _columns];
         Array.Fill(_buffer, ' ');
-        
     }
     public static ScreenBuffer GetInstance()
     {

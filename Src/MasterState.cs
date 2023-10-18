@@ -12,12 +12,12 @@ public class MasterState
     public const int ELEVATOR_HEIGHT = 5;
     public const int ELEVATOR_WIDTH = 9;
     readonly int _floorCount = Console.WindowHeight / FLOOR_HEIGHT;
-    readonly int _playArea;
+    int _playArea;
     int _idCount;
     readonly Graphic _title;
     readonly Graphic _elevator;
     readonly Graphic _human;
-    readonly List<GuiObject> _guiObjects;
+    List<GuiObject> _guiObjects;
     readonly Shaft[] _shafts = new Shaft[2];
     readonly ScreenBuffer _screenBuffer;
     readonly ElevatorStateHandler _elevatorStateHandler;
@@ -34,7 +34,13 @@ public class MasterState
     }
     public void CallElevator(int from, int to)
     {
-        _elevatorStateHandler.CallElevator(_floors.First(floor => floor.NthFloor == from), _floors.First(floor => floor.NthFloor == to));
+        Floor? fromFloor = _floors.FirstOrDefault(floor => floor.NthFloor == from);
+        Floor? toFloor = _floors.FirstOrDefault(floor => floor.NthFloor == to);
+        if (fromFloor is null ||  toFloor is null)
+        {
+            return;
+        }
+        _elevatorStateHandler.CallElevator(fromFloor, toFloor);
     }
     void Tick()
     {
