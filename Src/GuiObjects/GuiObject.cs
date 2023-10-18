@@ -9,14 +9,12 @@ namespace ElevatorSystem.Src.GuiObjects;
 
 public class GuiObject
 {
-    readonly int _id;
-    protected int Y { get; set; }
-    protected int X { get; set; }
+    public int Row { get; protected set; }
+    public int Column { get; protected set; }
     private readonly Graphic _graphic;
-    public void Draw() => _graphic.Draw(Y, X);
-    public GuiObject(Graphic graphic, int id)
+    public PicturePixel[] Pixels => _graphic.GetGraphicInPlace(Row, Column);
+    public GuiObject(Graphic graphic)
     {
-        _id = id;
         _graphic = graphic;
     }
 }

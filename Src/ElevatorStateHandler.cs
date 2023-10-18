@@ -1,55 +1,37 @@
 ﻿using ElevatorSystem.Src.GuiObjects;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ElevatorSystem.Src;
 
 public class ElevatorStateHandler
 {
-    private readonly List<Floor> _floors;
-    private readonly List<Elevator> _elevators;
-    private readonly Queue<ElevatorCall> _taskQueue = new();
+    private readonly Elevator[] _elevators;
+    private readonly Queue<ElevatorCall> _callQueue = new();
 
-    public void GiveTaskToElevator()
+    public void CallElevator(Floor from, Floor to)
     {
-        if (_taskQueue.Count == 0)
+        _callQueue.Enqueue(new ElevatorCall(from, to));
+    }
+    public void GiveTasksToElevators()
+    {
+        if (!_callQueue.Any())
         {
             return;
         }
-
-        foreach (var elevator in _elevators)
+        var freeElevator = _elevators.FirstOrDefault(elevator => elevator.TaskAtHand is null || elevator.TaskAtHand.Complete);
+        if (freeElevator is not null)
         {
-            if (elevator.TaskAtHand.Finished)
-            {
-                elevator.TaskAtHand = _taskQueue.Dequeue();
-            }
-            if (_taskQueue.Count == 0)
-            {
-                break;
-            }
+            freeElevator.TaskAtHand = _callQueue.Dequeue();
         }
     }
-    public void MoveElevatorsTowardsTheirTask()
+    public void MoveElevators()
     {
-        foreach (var elevator in _elevators)
+        foreach(var elevator in _elevators)
         {
             elevator.Move();
         }
     }
-    public void CallElevator(int from, int to)
+    public ElevatorStateHandler(Elevator[] elevators)
     {
-        _taskQueue.Enqueue(new ElevatorCall()
-        {
-            From = _floors[from].ElevatorPositions.First().y,
-            To = _floors[to].ElevatorPositions.First().y
-        });
-    }
-    public ElevatorStateHandler(List<Floor> floors, List<Elevator> elevators)
-    {
-        _floors = floors;
         _elevators = elevators;
     }
 }

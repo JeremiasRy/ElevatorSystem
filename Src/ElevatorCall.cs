@@ -8,9 +8,15 @@ namespace ElevatorSystem.Src;
 
 public class ElevatorCall
 {
-    public int From { get; set; }
-    public int To { get; set; }
-    public bool FinishedFrom { get; set; } = false;
-    public bool FinishedTo { get; set; } = false;
-    public bool Finished => FinishedFrom && FinishedTo;
+    public Floor From { get; init; }
+    public Floor To { get; init; }
+    public bool FromCompleted { get; set; } = false;
+    public bool ToCompleted { get; set; } = false;
+    public bool Complete => FromCompleted && ToCompleted;
+
+    public ElevatorCall(Floor from, Floor to)
+    {
+        From = from;
+        To = to;
+    }
 }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ElevatorSystem.Src.Graphics;
 
-class PicturePixel
+public class PicturePixel
 {
     public int OffsetX { get; }
     public int OffsetY { get; }

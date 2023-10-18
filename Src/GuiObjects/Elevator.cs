@@ -1,39 +1,34 @@
 ﻿using ElevatorSystem.Src.Graphics;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ElevatorSystem.Src.GuiObjects;
 
 public class Elevator : GuiObject
-{   
-    public ElevatorCall TaskAtHand { get; set; } = new();
-
+{
+    public ElevatorCall? TaskAtHand { get; set; }
     public void Move()
     {
-        if (!TaskAtHand.FinishedFrom)
+        if (TaskAtHand is not null)
         {
-            Y = TaskAtHand.From > Y ? Y + 1 : Y - 1;
-            TaskAtHand.FinishedFrom = Y == TaskAtHand.From;
-            return;
-        }
-        if (!TaskAtHand.FinishedTo)
-        {
-            Y = TaskAtHand.To > Y ? Y + 1 : Y - 1;
-            TaskAtHand.FinishedTo = Y == TaskAtHand.To;
-            return;
+            if (!TaskAtHand.FromCompleted)
+            {
+                Row = TaskAtHand.From.Row - 5 > Row ? Row + 1 : Row - 1;
+                TaskAtHand.FromCompleted = Row == TaskAtHand.From.Row - 5;
+                return;
+            }
+            if (!TaskAtHand.ToCompleted)
+            {
+                Row = TaskAtHand.To.Row - 5 > Row ? Row + 1 : Row - 1;
+                TaskAtHand.ToCompleted = Row == TaskAtHand.To.Row - 5;
+                return;
+            }
         }
     }
-    public Elevator(Graphic graphic, int id, int y, int x) : base(graphic, id)
+    public void BrutalForceMove(int row, int col)
     {
-        X = x;
-        Y = y;
-        TaskAtHand = new()
-        {
-            FinishedFrom = true,
-            FinishedTo = true,
-        }; 
+        Row = row;
+        Column = col;
+    }
+    public Elevator(Graphic graphic) : base(graphic)
+    {
     }
 }

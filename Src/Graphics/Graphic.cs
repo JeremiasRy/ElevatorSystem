@@ -8,18 +8,10 @@ namespace ElevatorSystem.Src.Graphics;
 
 public class Graphic
 {
-    readonly PicturePixel[] _picture;
-    readonly ScreenBuffer _screenBuffer;
-    public void Draw(int y, int x)
+    readonly PicturePixel[] _pixels;
+    public PicturePixel[] GetGraphicInPlace(int row, int col) => _pixels.Select(pixel => new PicturePixel(row + pixel.OffsetY, col + pixel.OffsetX, pixel.Ch)).ToArray();
+    public Graphic(string filePath)
     {
-        foreach (var pixel in _picture)
-        {
-            _screenBuffer.DrawToBuffer(pixel.Ch, y + pixel.OffsetY, x + pixel.OffsetX);
-        }
-    }
-    public Graphic(string filePath, ScreenBuffer buffer)
-    {
-        _screenBuffer = buffer;
         using var sr = new StreamReader(filePath);
         List<string> lines = new();
         int count = 0;
@@ -29,14 +21,14 @@ public class Graphic
             lines.Add(line);
             count += line.Length;
         }
-        _picture = new PicturePixel[count];
+        _pixels = new PicturePixel[count];
 
         count = 0;
         for (int iy = 0; iy < lines.Count; iy++)
         {
             for (int ix = 0; ix < lines[iy].Length; ix++)
             {
-                _picture[count++] = new PicturePixel(iy, ix, lines[iy].ElementAt(ix));
+                _pixels[count++] = new PicturePixel(iy, ix, lines[iy].ElementAt(ix));
             }
         }
     }
