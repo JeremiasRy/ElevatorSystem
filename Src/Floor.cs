@@ -7,7 +7,8 @@ using System.Threading.Tasks;
 namespace ElevatorSystem.Src;
 public class Floor
 {
-    public int NthFloor { get; set; }
-    public int Row { get; set; }
+    public int NthFloor { get; }
+    public int Row { get; }
     public int RowAdjustedForElevator => Row - 4;
+    public override string ToString() => $"Floor {NthFloor}";
 }

@@ -8,6 +8,12 @@ namespace ElevatorSystem.Src;
 
 public class ElevatorInstruction
 {
-    public int GoToRow { get; set; }
-    public bool Completed { get; set; } = false;
+    public Floor GoTo { get; }
+    public ElevatorInstruction(Floor floor)
+    { 
+        GoTo = floor;
+    }
+    public void Complete()
+    {
+    }
 }

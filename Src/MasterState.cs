@@ -13,7 +13,6 @@ public class MasterState
     public const int ELEVATOR_WIDTH = 9;
     readonly int _floorCount = Console.WindowHeight / FLOOR_HEIGHT;
     int _playArea;
-    int _idCount;
     readonly Graphic _title;
     readonly Graphic _elevator;
     readonly Graphic _human;
@@ -32,20 +31,13 @@ public class MasterState
             Thread.Sleep(40);
         }
     }
-    public void CallElevator(int from, int to)
+    public void CallElevator(int floor)
     {
-        Floor? fromFloor = _floors.FirstOrDefault(floor => floor.NthFloor == from);
-        Floor? toFloor = _floors.FirstOrDefault(floor => floor.NthFloor == to);
-        if (fromFloor is null ||  toFloor is null)
-        {
-            return;
-        }
-        _elevatorStateHandler.CallElevator(fromFloor, toFloor);
+        _elevatorStateHandler.CallElevator(floor);
     }
     void Tick()
     {
-        _elevatorStateHandler.GiveInstructionsToElevators();
-        _elevatorStateHandler.MoveElevators();
+        _elevatorStateHandler.TakeAction();
         DrawBackground();
         DrawToBuffer();
         _screenBuffer.DrawBuffer();
