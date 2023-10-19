@@ -1,27 +1,55 @@
 ﻿using ElevatorSystem.Src.GuiObjects;
+using System.Xml.Serialization;
 
 namespace ElevatorSystem.Src;
 
 public class ElevatorStateHandler
 {
     private readonly Elevator[] _elevators;
-    private readonly Queue<ElevatorCall> _callQueue = new();
-
+    private readonly List<ElevatorCall> _callTable = new();
     public void CallElevator(Floor from, Floor to)
     {
-        _callQueue.Enqueue(new ElevatorCall(from, to));
+        _callTable.Add(new ElevatorCall(from, to));
     }
-    public void GiveTasksToElevators()
+    public void GiveInstructionsToElevators()
     {
-        if (!_callQueue.Any())
+        var calls = _callTable.Where(call => !call.IsAssigned).OrderBy(call => call.Id).ToList();
+        if (!calls.Any())
         {
             return;
         }
-        var freeElevator = _elevators.FirstOrDefault(elevator => elevator.TaskAtHand is null || elevator.TaskAtHand.Complete);
-        if (freeElevator is not null)
+        
+        foreach (var elevator in _elevators)
         {
-            freeElevator.TaskAtHand = _callQueue.Dequeue();
+            if (CheckIfCallMatchesElevatorLocation(calls, elevator, out ElevatorCall? call))
+            {
+                CheckWhichCallsCanBeDoneWithinCall(calls, call ?? throw new Exception("Call shouldn't be null?"));
+            }
         }
+    }
+    static bool CheckIfCallMatchesElevatorLocation(List<ElevatorCall> calls, Elevator elevator, out ElevatorCall? call) 
+    {
+        call = calls.FirstOrDefault(call => call.From.RowAdjustedForElevator == elevator.Row);
+        if (call is not null) 
+        {
+            return calls.Remove(call);
+        };
+        return false;
+    }
+    static void CheckWhichCallsCanBeDoneWithinCall(List<ElevatorCall> calls, ElevatorCall call)
+    {
+        calls = calls.Where(c => c.Direction == call.Direction).ToList();
+        if (call.Direction == ElevatorCall.CallDirection.Up)
+        {
+            calls = calls.Where(c => c.From.NthFloor >= call.From.NthFloor && c.To.NthFloor <= call.To.NthFloor).ToList();
+        } else
+        {
+            calls = calls.Where(c => c.From.NthFloor <= call.From.NthFloor && c.To.NthFloor >= call.To.NthFloor).ToList();
+        }
+    }
+    static List<ElevatorInstruction> CreateInstructions(List<ElevatorCall> calls)
+    {
+
     }
     public void MoveElevators()
     {

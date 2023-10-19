@@ -5,9 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace ElevatorSystem.Src;
-public class Floor
+
+public class ElevatorInstruction
 {
-    public int NthFloor { get; set; }
-    public int Row { get; set; }
-    public int RowAdjustedForElevator => Row - 4;
+    public int GoToRow { get; set; }
+    public bool Completed { get; set; } = false;
 }

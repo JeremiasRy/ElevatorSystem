@@ -29,7 +29,7 @@ public class MasterState
         while (true)
         {
             Tick();
-            Thread.Sleep(20);
+            Thread.Sleep(40);
         }
     }
     public void CallElevator(int from, int to)
@@ -44,7 +44,7 @@ public class MasterState
     }
     void Tick()
     {
-        _elevatorStateHandler.GiveTasksToElevators();
+        _elevatorStateHandler.GiveInstructionsToElevators();
         _elevatorStateHandler.MoveElevators();
         DrawBackground();
         DrawToBuffer();
