@@ -33,7 +33,7 @@ public class ScreenBuffer
         foreach (char[] row in _buffer.Chunk(_columns) ?? throw new Exception($"{nameof(_buffer)} couldn't be chunked"))
         {
             Console.SetCursorPosition(0, cursorPos++);
-            Console.Write(row);   
+            Console.Write(row);
         }
         Console.SetCursorPosition(0, 0);
         ClearBuffer();

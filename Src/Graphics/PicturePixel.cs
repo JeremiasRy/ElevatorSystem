@@ -11,7 +11,6 @@ public class PicturePixel
     public int OffsetX { get; }
     public int OffsetY { get; }
     public char Ch { get; }
-
     public PicturePixel(int y, int x, char ch)
     {
         OffsetX = x;

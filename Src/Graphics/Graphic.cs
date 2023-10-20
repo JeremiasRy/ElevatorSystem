@@ -8,8 +8,16 @@ namespace ElevatorSystem.Src.Graphics;
 
 public class Graphic
 {
+    readonly int _height;
     readonly PicturePixel[] _pixels;
-    public PicturePixel[] GetGraphicInPlace(int row, int col) => _pixels.Select(pixel => new PicturePixel(row + pixel.OffsetY, col + pixel.OffsetX, pixel.Ch)).ToArray();
+    public (int Row, int Col, char Ch)[] GetGraphicInPlace(int row, int col, bool adjustHeight = false) 
+    {
+        if (adjustHeight)
+        {
+            row -= _height;
+        }
+        return _pixels.Select(pixel => (row + pixel.OffsetY, col + pixel.OffsetX, pixel.Ch)).ToArray(); 
+    }
     public Graphic(string filePath)
     {
         using var sr = new StreamReader(filePath);
@@ -22,7 +30,7 @@ public class Graphic
             count += line.Length;
         }
         _pixels = new PicturePixel[count];
-
+        _height = lines.Count;
         count = 0;
         for (int iy = 0; iy < lines.Count; iy++)
         {
