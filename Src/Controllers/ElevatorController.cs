@@ -5,8 +5,9 @@ namespace ElevatorSystem.Src;
 
 public class ElevatorController
 {
+    readonly Constants _constants;
     readonly Shaft[] _shafts = new Shaft[ELEVATOR_COUNT];
-    readonly Floor[] _floors = new Floor[FloorCount];
+    readonly Floor[] _floors = new Floor[ELEVATOR_COUNT];
     public (int Row, int Col)[] ElevatorPositions 
     { 
         get
@@ -37,9 +38,10 @@ public class ElevatorController
     }
     public ElevatorController()
     {
+        _constants = new Constants();
         for (int i = 0; i < _shafts.Length; i++)
         {
-            _shafts[i] = new Shaft(new Elevator(), ShaftPositions[i]);
+            _shafts[i] = new Shaft(new Elevator(), _constants.ShaftPositions[i]);
         }
     }
 }

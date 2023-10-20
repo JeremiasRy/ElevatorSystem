@@ -30,7 +30,7 @@ public class ScreenBuffer
     public void DrawBuffer()
     {
         int cursorPos = 0;
-        foreach (char[] row in _buffer.Chunk(_columns) ?? throw new Exception($"{nameof(_buffer)} couldn't be chunked"))
+        foreach (char[] row in _buffer.Chunk(_columns))
         {
             Console.SetCursorPosition(0, cursorPos++);
             Console.Write(row);
