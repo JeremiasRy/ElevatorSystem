@@ -7,33 +7,18 @@ public class ElevatorController
 {
     readonly Constants _constants;
     readonly Shaft[] _shafts = new Shaft[ELEVATOR_COUNT];
-    readonly Floor[] _floors = new Floor[ELEVATOR_COUNT];
-    public (int Row, int Col)[] ElevatorPositions 
-    { 
-        get
-        {
-            var result = new (int Row, int Col)[ELEVATOR_COUNT];
-            for (int i = 0; i < ELEVATOR_COUNT; i++)
-            {
-                result[i] = (_shafts[i].ElevatorHeight, _shafts[i].Column);
-            }
-            return result;
-        }
-    }
-    
-    public void CallElevator()
-    {
-
-    }
+    readonly Floor[] _floors;
+    public (int Row, int Col)[] ElevatorPositions => _shafts.Select(shaft => shaft.ElevatorPosition).ToArray();
     public void Tick()
     {
         MoveElevators();
     }
     void MoveElevators()
     {
+        var activeFloors = _floors.Where(floor => floor.DownCallActive == Floor.FloorCallState.Active || floor.UpCallActive == Floor.FloorCallState.Active);
         foreach (var shaft in _shafts)
         {
-            shaft.InputElevator(Elevator.Motor.Up);
+            shaft.MoveElevator(activeFloors);
         }
     }
     public ElevatorController()
@@ -42,6 +27,15 @@ public class ElevatorController
         for (int i = 0; i < _shafts.Length; i++)
         {
             _shafts[i] = new Shaft(new Elevator(), _constants.ShaftPositions[i]);
+        }
+        _floors = new Floor[_constants.FloorCount];
+        for (int i = 0; i < _constants.FloorPositions.Length; i++)
+        {
+            _floors[i] = new Floor()
+            {
+                NthFloor = i,
+                Row = _constants.FloorPositions[i],
+            };
         }
     }
 }

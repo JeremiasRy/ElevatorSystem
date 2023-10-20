@@ -13,10 +13,11 @@ public class Constants
     public const int PADDING = 2;
     public const int ELEVATOR_HEIGHT = 5;
     public const int ELEVATOR_WIDTH = 9;
-    public const int ELEVATOR_COUNT = 7;
+    public const int ELEVATOR_COUNT = 2;
     public const int TITLE_WIDTH = 35;
     public int[] CablePositions;
     public int[] ShaftPositions;
+    public int[] FloorPositions;
     public int SimulationArea = Console.WindowWidth / 3 * 2;
     public int FloorCount = Console.WindowHeight / FLOOR_HEIGHT;
     public int TotalElevatorShaftWidth = SHAFT_WIDTH * ELEVATOR_COUNT + PADDING * (ELEVATOR_COUNT - 1);
@@ -31,5 +32,10 @@ public class Constants
             CablePositions[i] = ShaftPositions[i] + SHAFT_WIDTH / 2;
         }
         TitlePadding = (Console.WindowWidth - SimulationArea - TITLE_WIDTH) / 2;
+        FloorPositions = new int[FloorCount];
+        for (int i = 0; i < FloorCount; i++)
+        {
+            FloorPositions[i] = Console.WindowHeight - 1 - FLOOR_HEIGHT * i;
+        }
     }
 }

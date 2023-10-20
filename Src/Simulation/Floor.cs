@@ -10,4 +10,12 @@ public class Floor
 {
     public int NthFloor { get; set; }
     public int Row { get; set; }
+    public FloorCallState DownCallActive { get; set; } = FloorCallState.Idle;
+    public FloorCallState UpCallActive { get; set; } = FloorCallState.Idle;
+    public enum FloorCallState
+    {
+        Active,
+        ElevatorAssigned,
+        Idle,
+    };
 }

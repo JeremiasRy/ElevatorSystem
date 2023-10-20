@@ -8,13 +8,13 @@ namespace ElevatorSystem.Src.Graphics;
 
 public class PicturePixel
 {
-    public int OffsetX { get; }
-    public int OffsetY { get; }
+    public int OffsetColumn { get; }
+    public int OffsetRow { get; }
     public char Ch { get; }
     public PicturePixel(int y, int x, char ch)
     {
-        OffsetX = x;
-        OffsetY = y;
+        OffsetColumn = x;
+        OffsetRow = y;
         Ch = ch;
     }
 }
