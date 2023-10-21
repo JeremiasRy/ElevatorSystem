@@ -1,4 +1,5 @@
 ﻿using ElevatorSystem.Src.Inputs;
+using ElevatorSystem.Src.Simulation;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -8,9 +9,9 @@ using System.Threading.Tasks;
 using static ElevatorSystem.Src.Constants;
 using static ElevatorSystem.Src.Simulation.Floor;
 
-namespace ElevatorSystem.Src.Simulation;
+namespace ElevatorSystem.Src.Controllers;
 
-public class Shaft
+public class ShaftController
 {
     readonly Constants _constants = new();
     readonly Elevator _elevator;
@@ -18,16 +19,12 @@ public class Shaft
     int _currentDestination = -1;
     public int Column { get; init; }
     public (int ElevatorRow, int ElevatorColumn) ElevatorPosition => (_elevator.Row - ELEVATOR_HEIGHT, Column + PADDING);
-    public void MoveElevator(List<Floor>? activeFloors)
+    public void MoveElevator()
     {
-        if (activeFloors is not null) 
-        {
-
-        }
 
     }
 
-    public Shaft(Elevator elevator, int col)
+    public ShaftController(Elevator elevator, int col)
     {
         _elevator = elevator;
         Column = col;
