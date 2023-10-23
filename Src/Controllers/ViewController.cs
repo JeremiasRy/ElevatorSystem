@@ -7,26 +7,15 @@ public class ViewController
     private readonly Graphic _elevator;
     private readonly Graphic _title;
     private readonly ScreenBuffer _screenBuffer;
-    private readonly ElevatorController _elevatorController;
+    private readonly ElevatorOrchestrator _elevatorOrchestrator;
     public void Draw()
     {
         DrawBackground();
-        foreach (var (row, col) in _elevatorController.ElevatorPositions)
+        foreach (var (row, col) in _elevatorOrchestrator.ElevatorPositions)
         {
             foreach(var (Row, Col, Ch) in _elevator.GetGraphicInPlace(row, col))
             {
                 _screenBuffer.DrawToBuffer(Ch, Row, Col);
-            }
-        }
-        for (int i = 0; i < Console.WindowHeight; i++)
-        {
-            foreach (var cable in _constants.CablePositions)
-            {
-                int count = 0;
-                if (i < _elevatorController.ElevatorPositions[count++].Row - ELEVATOR_HEIGHT)
-                {
-                    _screenBuffer.DrawToBuffer('|', i, cable);
-                }
             }
         }
         _screenBuffer.DrawBuffer();
@@ -48,7 +37,7 @@ public class ViewController
 
             for (int cable = 0; cable < _constants.CablePositions.Length; cable++)
             {
-                if (i <= _elevatorController.ElevatorPositions[cable].Row)
+                if (i <= _elevatorOrchestrator.ElevatorPositions[cable].Row)
                 {
                     _screenBuffer.DrawToBuffer('|', i, _constants.CablePositions[cable]);
                 }
@@ -59,9 +48,9 @@ public class ViewController
             _screenBuffer.DrawToBuffer(Ch, Row, Col);
         }
     }
-    public ViewController(ElevatorController elevatorController)
+    public ViewController(ElevatorOrchestrator elevatorController)
     {
-        _elevatorController = elevatorController;
+        _elevatorOrchestrator = elevatorController;
         _elevator = new Graphic("../../../Assets/Elevator.txt");
         _human = new Graphic("../../../Assets/Human.txt");
         _title = new Graphic("../../../Assets/Title.txt");

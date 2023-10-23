@@ -6,8 +6,13 @@ using System.Threading.Tasks;
 
 namespace ElevatorSystem.Src.Inputs;
 
-public class ElevatorFloorCall
+public class FloorCallInput
 {
     public int Floor { get; set; }
-    public bool Active { get; set; }
+    public Direction RequestDirection { get; set; }
+    public enum Direction
+    {
+        Up,
+        Down
+    }
 }
