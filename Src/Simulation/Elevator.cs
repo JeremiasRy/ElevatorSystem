@@ -8,7 +8,8 @@ using System.Threading.Tasks;
 namespace ElevatorSystem.Src.Simulation;
 
 public class Elevator
-{ 
+{
+    public const int WEIGHT_LIMIT = 500;
     public int Row { get; private set; } = Console.WindowHeight - 1;
     public void Input(int motor)
     {

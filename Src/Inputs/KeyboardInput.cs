@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Runtime.InteropServices;
 
 namespace ElevatorSystem.Src.Inputs;
 
 public class KeyboardInput
 {
+    const byte _highBit = 0x1 << 7;
     [DllImport("user32.dll")]
     static extern bool GetKeyboardState(byte[] lpKeyState);
     [DllImport("user32.dll")]
@@ -21,7 +17,7 @@ public class KeyboardInput
         GetKeyboardState(_array);
         for (int i = 0; i < _array.Length; i++)
         {
-            if ((_array[i] & 128) != 0)
+            if ((_array[i] & _highBit) != 0)
             {
                 keys.Add((ConsoleKey)i);
             }

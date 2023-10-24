@@ -12,7 +12,6 @@ public class ScreenBuffer
     readonly int _rows;
     readonly int _columns;
     readonly char[] _buffer;
-
     int GetIndex(int row, int column) => row * _columns + column;
     public void DrawToBuffer(string str, int row = 0, int col = 0)
     {

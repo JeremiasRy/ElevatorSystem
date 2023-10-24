@@ -1,4 +1,5 @@
 ﻿using ElevatorSystem.Src.Controllers;
+using ElevatorSystem.Src.Data;
 using ElevatorSystem.Src.Inputs;
 using ElevatorSystem.Src.Simulation;
 using static ElevatorSystem.Src.Constants;
@@ -12,6 +13,14 @@ public class ElevatorOrchestrator
     readonly ElevatorController[] _elevatorControllers = new ElevatorController[ELEVATOR_COUNT];
     readonly FloorController[] _floorControllers;
     public (int Row, int Col)[] ElevatorPositions => _elevatorControllers.Select(shaft => shaft.ElevatorPosition).ToArray();
+    public List<ElevatorData> GetElevatorDataPoints()
+    {
+        return _elevatorControllers.Select(controller => ElevatorData.FromElevatorController(controller)).ToList();
+    }
+    public List<FloorData> GetFloorDataPoints()
+    {
+        return _floorControllers.Select(controller => FloorData.FromFloorController(controller)).ToList();
+    }
     public void Tick()
     {
         HandleRequests();
@@ -53,8 +62,8 @@ public class ElevatorOrchestrator
     public ElevatorOrchestrator()
     {
         _constants = new Constants();
-        _floorControllers = new FloorController[_constants.FloorCount];
-        for (int i = 0; i < _constants.FloorPositions.Length; i++)
+        _floorControllers = new FloorController[_constants.FloorCount - 1];
+        for (int i = 0; i < _constants.FloorPositions.Length - 1; i++)
         {
             _floorControllers[i] = new FloorController(i, _constants.FloorPositions[i]);
         }

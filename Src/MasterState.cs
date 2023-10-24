@@ -8,7 +8,7 @@ public class MasterState
     readonly ElevatorOrchestrator _elevatorOrchestrator;
     readonly ViewController _viewController;
     readonly KeyboardInput _keyboardInput;
-    readonly Constants _constants = new Constants();
+    readonly Constants _constants = new ();
     public void StartTick()
     {
         while (true)
@@ -16,9 +16,12 @@ public class MasterState
             Tick();
             if (_keyboardInput.KeyboardKeyDown(out List<ConsoleKey> keys))
             {
-                if (KeyboardInput.ConvertConsoleKeyToInt(keys.First(), out int floor))
+                foreach (ConsoleKey key in keys)
                 {
-                    CallElevator(floor, FloorCallInput.Direction.Up);
+                    if (KeyboardInput.ConvertConsoleKeyToInt(key, out int floor))
+                    {
+                        CallElevator(floor, FloorCallInput.Direction.Up);
+                    }
                 }
             };
             Thread.Sleep(20);
@@ -26,7 +29,7 @@ public class MasterState
     }
     void CallElevator(int floor, FloorCallInput.Direction dir)
     {
-        if (floor >= _constants.FloorCount)
+        if (floor >= _constants.FloorCount - 1)
         {
             return;
         }

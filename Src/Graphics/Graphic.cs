@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ElevatorSystem.Src.Graphics;
+﻿namespace ElevatorSystem.Src.Graphics;
 public class Graphic
 {
     readonly PicturePixel[] _pixels;

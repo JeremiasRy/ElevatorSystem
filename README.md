@@ -1,4 +1,5 @@
 # ElevatorSystem
 
-Things to do:
-- Figure out how to prioritise tasks between elevators (left to right) elevator button > floor call
+Things to do
+- Design the flow of user input -> floor call (up / down) -> open panel? ask for where to now?
+- Keep track of requests and print them on a info section

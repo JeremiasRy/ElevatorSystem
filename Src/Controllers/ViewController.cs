@@ -6,6 +6,7 @@ public class ViewController
     private readonly Graphic _human;
     private readonly Graphic _elevator;
     private readonly Graphic _title;
+    private readonly Info _info;
     private readonly ScreenBuffer _screenBuffer;
     private readonly ElevatorOrchestrator _elevatorOrchestrator;
     public void Draw()
@@ -47,6 +48,10 @@ public class ViewController
         {
             _screenBuffer.DrawToBuffer(Ch, Row, Col);
         }
+        foreach (PicturePixel pixel in _info.ReturnInfoPixels(_elevatorOrchestrator.GetElevatorDataPoints(), _elevatorOrchestrator.GetFloorDataPoints()))
+        {
+            _screenBuffer.DrawToBuffer(pixel.Ch, TITLE_HEIGHT + pixel.OffsetRow, _constants.SimulationArea + 5 + pixel.OffsetColumn);
+        }
     }
     public ViewController(ElevatorOrchestrator elevatorController)
     {
@@ -56,6 +61,7 @@ public class ViewController
         _title = new Graphic("../../../Assets/Title.txt");
         _screenBuffer = ScreenBuffer.GetInstance();
         _constants = new Constants();
+        _info = new Info();
     }
     public enum GraphicType
     {
