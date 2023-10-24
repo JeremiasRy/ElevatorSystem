@@ -64,6 +64,10 @@ public class ElevatorController
         }
 
         var activeFloors = _floorControllers.Where(floorController => floorController.DownCallState == FloorCallState.Active || floorController.UpCallState == FloorCallState.Active);
+        if (activeFloors.Any())
+        {
+            CheckIfCanAnswerFloorCallWithoutMoving(activeFloors);
+        }
 
         if (ActiveInputPanelValue())
         {
@@ -84,7 +88,6 @@ public class ElevatorController
 
         if (activeFloors.Any())
         {
-            CheckIfCanAnswerFloorCallWithoutMoving(activeFloors);
             var destinationFloor = activeFloors.First();
             _currentDestination = destinationFloor.NthFloor;
             if (destinationFloor.DownCallState == FloorCallState.Active)

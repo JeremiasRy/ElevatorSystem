@@ -21,7 +21,7 @@ public class ElevatorOrchestrator
         FloorController floor = _floorControllers.FirstOrDefault(floor => floor.NthFloor == request.Floor) ?? throw new ArgumentException($"No such floor {request.Floor}");
         if (request.RequestDirection == FloorCallInput.Direction.Up)
         {
-            if (floor.UpCallState == FloorCallState.NotAvailable)
+            if (floor.UpCallState == FloorCallState.NotAvailable || floor.UpCallState == FloorCallState.ElevatorAssigned)
             {
                 // Info not available
                 return;
@@ -29,7 +29,7 @@ public class ElevatorOrchestrator
             floor.UpCallState = FloorCallState.Active;
             return;
         }
-        if (request.RequestDirection == FloorCallInput.Direction.Down)
+        if (request.RequestDirection == FloorCallInput.Direction.Down || floor.DownCallState == FloorCallState.ElevatorAssigned)
         {
             if (floor.DownCallState == FloorCallState.NotAvailable)
             {

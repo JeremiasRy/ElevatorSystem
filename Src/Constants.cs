@@ -19,7 +19,7 @@ public class Constants
     public int[] ShaftPositions;
     public int[] FloorPositions;
     public int SimulationArea = Console.WindowWidth / 3 * 2;
-    public int FloorCount = Console.WindowHeight / FLOOR_HEIGHT;
+    public int FloorCount = Console.WindowHeight / FLOOR_HEIGHT + 1;
     public int TotalElevatorShaftWidth = SHAFT_WIDTH * ELEVATOR_COUNT + PADDING * (ELEVATOR_COUNT - 1);
     public int TitlePadding;
     public Constants()
