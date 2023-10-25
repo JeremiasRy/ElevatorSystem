@@ -1,5 +1,6 @@
 ﻿using ElevatorSystem.Src.Graphics;
 using ElevatorSystem.Src.Inputs;
+using System.Drawing;
 
 namespace ElevatorSystem.Src;
 
@@ -10,6 +11,7 @@ public class MasterState
     readonly ViewController _viewController;
     readonly KeyboardInput _keyboardInput;
     readonly Constants _constants = new ();
+    readonly List<UserCall> _userCalls = new();
     public void StartTick()
     {
         while (true)
@@ -19,6 +21,10 @@ public class MasterState
             {
                 HandleUserInput(keys);
             };
+            if (_userCalls.Any() && _elevatorOrchestrator.ElevatorsAtFloor.Length > 0)
+            {
+                HandleElevatorsToUserCalls();
+            }
             Thread.Sleep(20);
         }
     }
@@ -32,7 +38,7 @@ public class MasterState
                 ActivateFloorCallPanel(floor);
                 continue;
             }
-            if (KeyboardInput.ConverstConsoleKeyToDirection(key, out FloorCallInput.Direction direction) && _selectedFloor != -1)
+            if (KeyboardInput.ConverstConsoleKeyToDirection(key, out UserCall.Direction direction) && _selectedFloor != -1)
             {
                 CallElevator(direction);
             }
@@ -48,13 +54,24 @@ public class MasterState
         }
         _elevatorOrchestrator.ActivateFloorCall(floor);
     }
-    void CallElevator(FloorCallInput.Direction direction)
+    void CallElevator(UserCall.Direction direction)
     {
         _elevatorOrchestrator.CallElevator(_selectedFloor, direction);
+        _userCalls.Add(new UserCall(_selectedFloor, direction));
         _selectedFloor = -1;
     }
 
-    void CallElevatorPanelInput(int floor, int elevatorIdx)
+    void HandleElevatorsToUserCalls()
+    {
+        var elevators = _elevatorOrchestrator.ElevatorsAtFloor;
+        var matches = _userCalls.Where(userCall => elevators.Any(elevator => userCall.Floor == elevator.Floor)).ToList();
+        if (!matches.Any())
+        {
+            return;
+        }
+        PutHumansInsideElevator(matches);
+    }
+    void PutHumansInsideElevator(List<UserCall> userCalls)
     {
 
     }

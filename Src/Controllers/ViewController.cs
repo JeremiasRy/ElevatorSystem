@@ -13,7 +13,7 @@ public class ViewController
     public void Draw()
     {
         DrawBackground();
-        foreach (var (row, col) in _elevatorOrchestrator.ElevatorPositions)
+        foreach (var (row, col, floor) in _elevatorOrchestrator.ElevatorPositions)
         {
             foreach(var (elevatorRow, elevatorCol, ch) in _elevator.GetGraphicInPlace(row, col))
             {

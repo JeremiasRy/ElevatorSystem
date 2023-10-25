@@ -46,7 +46,7 @@ public class FloorController
         {
             DownCallState = FloorCallState.NotAvailable;
         }
-        if (nthFloor == constants.FloorCount - 1)
+        if (nthFloor == constants.FloorCount - 2)
         {
             UpCallState = FloorCallState.NotAvailable;
         }

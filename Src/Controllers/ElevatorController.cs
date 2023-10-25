@@ -5,6 +5,7 @@ using static ElevatorSystem.Src.Controllers.FloorController;
 namespace ElevatorSystem.Src.Controllers;
 public class ElevatorController
 {
+    static int _idCount = 1;
     int _currentDestination = -1;
     int _doorOpenSequence = 0;
     public readonly int Id;
@@ -17,20 +18,21 @@ public class ElevatorController
     readonly Dictionary<int, bool> _elevatorInputPanel;
     public bool[] ReturnInputPanelValues() => _elevatorInputPanel.OrderBy(kv => kv.Key).Select(kv => kv.Value).ToArray();
     public int Column { get; init; }
-    public (int ElevatorRow, int ElevatorColumn) ElevatorPosition => (_elevator.Row - ELEVATOR_HEIGHT, Column + PADDING);
+    public (int ElevatorRow, int ElevatorColumn, int ElevatorFloor) ElevatorPosition => (_elevator.Row - ELEVATOR_HEIGHT, Column + PADDING, ElevatorIsStationaryAtAFloor());
     public FloorController? Destination => _floorControllers.Where(floorController => floorController.NthFloor == _currentDestination).FirstOrDefault();
     public void HandleElevatorInputPanelRequest(int requestFloor)
     {
-        if (ElevatorIsStationaryAtAFloor(out int floor))
+        var check = ElevatorIsStationaryAtAFloor();
+        if (check != -1)
         {
-            if (requestFloor == floor)
+            if (requestFloor == ElevatorIsStationaryAtAFloor())
             {
                 return;
             }
         }
-        if (_elevatorInputPanel.TryGetValue(floor, out bool active))
+        if (_elevatorInputPanel.TryGetValue(check, out bool active))
         {
-            _elevatorInputPanel[floor] = !active || active;
+            _elevatorInputPanel[check] = !active || active;
         }
     }
     public void TakeAction()
@@ -72,10 +74,11 @@ public class ElevatorController
         {
             return;
         }
-        if (ElevatorIsStationaryAtAFloor(out int elevatorFloor))
+        var check = ElevatorIsStationaryAtAFloor();
+        if (check != -1)
         {
             var destinationFloor = activeFloors
-                .OrderBy(floorcontroller => Math.Abs(floorcontroller.NthFloor - elevatorFloor))
+                .OrderBy(floorcontroller => Math.Abs(floorcontroller.NthFloor - check))
                 .First();
 
             _currentDestination = destinationFloor.NthFloor;
@@ -95,10 +98,11 @@ public class ElevatorController
         IEnumerable<int> requestedFloors = _elevatorInputPanel.Where(request => request.Value).Select(request => request.Key);
         if (_currentDestination == -1)
         {
-            if (ElevatorIsStationaryAtAFloor(out int floor))
+            var check = ElevatorIsStationaryAtAFloor();
+            if (check != -1)
             {
                 var nearestDestination = requestedFloors
-                    .OrderBy(request => Math.Abs(request - floor))
+                    .OrderBy(request => Math.Abs(request - check))
                     .First();
                 _currentDestination = nearestDestination;
                 return;
@@ -139,9 +143,10 @@ public class ElevatorController
     }
     void CheckIfCanAnswerFloorCallWithoutMoving(IEnumerable<FloorController> activeFloors)
     {
-        if (ElevatorIsStationaryAtAFloor(out int floor))
+        var check = ElevatorIsStationaryAtAFloor();
+        if (check != -1)
         {
-            var floorMatch = activeFloors.FirstOrDefault(floorController => floorController.NthFloor == floor);
+            var floorMatch = activeFloors.FirstOrDefault(floorController => floorController.NthFloor == check);
             if (floorMatch is not null)
             {
                 // Elevator was available in the floor only take one of the calls if there are two
@@ -153,21 +158,24 @@ public class ElevatorController
                 {
                     floorMatch.DownCallState = FloorCallState.Idle;
                 }
+                _doorOpenSequence = 5;
             }
         }
     }
     bool ActiveInputPanelValue() => _elevatorInputPanel.Values.Any(value => value);
-    public bool ElevatorIsStationaryAtAFloor(out int floor)
+    /// <summary>
+    /// Checks if elevator is at a floor
+    /// </summary>
+    /// <returns>The nth floor elevator is at or else -1</returns>
+    public int ElevatorIsStationaryAtAFloor()
     {
-        floor = -1;
         var result = _floorControllers.FirstOrDefault(floorController => floorController.Row == _elevator.Row);
         if (result is not null)
         {
-            floor = result.NthFloor;
+            return result.NthFloor;
         }
-        return floor > -1;
+        return -1;
     }
-    static int _idCount = 1;
     public ElevatorController(Elevator elevator, int col, FloorController[] floorControllers)
     {
         Id = _idCount++;

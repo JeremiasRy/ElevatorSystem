@@ -2,7 +2,6 @@
 using ElevatorSystem.Src.Data;
 using ElevatorSystem.Src.Inputs;
 using ElevatorSystem.Src.Simulation;
-using System.Xml.Serialization;
 using static ElevatorSystem.Src.Constants;
 using static ElevatorSystem.Src.Controllers.FloorController;
 
@@ -13,7 +12,12 @@ public class ElevatorOrchestrator
     readonly Constants _constants;
     readonly ElevatorController[] _elevatorControllers = new ElevatorController[ELEVATOR_COUNT];
     readonly FloorController[] _floorControllers;
-    public (int Row, int Col)[] ElevatorPositions => _elevatorControllers.Select(shaft => shaft.ElevatorPosition).ToArray();
+    public (int Row, int Col)[] ElevatorPositions => _elevatorControllers
+        .Select(shaft => (shaft.ElevatorPosition.ElevatorRow, shaft.ElevatorPosition.ElevatorColumn))
+        .ToArray();
+    public (int Id, int Floor)[] ElevatorsAtFloor => _elevatorControllers
+        .Where(shaft => shaft.ElevatorPosition.ElevatorRow != -1)
+        .Select(elevatorController => (elevatorController.Id, elevatorController.ElevatorPosition.ElevatorFloor)).ToArray();
     public List<ElevatorData> GetElevatorDataPoints()
     {
         return _elevatorControllers.Select(controller => ElevatorData.FromElevatorController(controller)).ToList();
@@ -33,13 +37,13 @@ public class ElevatorOrchestrator
             floorController.OpenPanel = floorController.NthFloor == floor;
         }
     }
-    public void CallElevator(int floor, FloorCallInput.Direction direction)
+    public void CallElevator(int floor, UserCall.Direction direction)
     {
         var floorController = _floorControllers.FirstOrDefault(floorController => floorController.NthFloor == floor) ?? throw new ArgumentException("Things shouldn't explode here");
-        if (direction == FloorCallInput.Direction.Up && floorController.UpCallState == FloorCallState.Idle)
+        if (direction == UserCall.Direction.Up && floorController.UpCallState == FloorCallState.Idle)
         {
             floorController.UpCallState = FloorCallState.Active;
-        } else if (floorController.DownCallState == FloorCallState.Idle)
+        } else if (direction == UserCall.Direction.Down && floorController.DownCallState == FloorCallState.Idle)
         {
             floorController.DownCallState = FloorCallState.Active;
         }
