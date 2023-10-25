@@ -8,10 +8,13 @@ namespace ElevatorSystem.Src.Controllers;
 
 public class FloorController
 {
+    readonly Constants _constants = new();
     FloorCallState _downCallState = FloorCallState.Idle;
     FloorCallState _upCallState = FloorCallState.Idle;
     public int NthFloor { get; set; }
     public int Row { get; set; }
+    public bool OpenPanel { get; set; }
+    public int Width => _constants.SimulationArea - _constants.TotalElevatorShaftWidth;
     public FloorCallState DownCallState
     {
         get => _downCallState;

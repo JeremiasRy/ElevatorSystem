@@ -30,6 +30,26 @@ public class KeyboardInput
         return value >= 0;
         
     }
+    public static bool ConverstConsoleKeyToDirection(ConsoleKey key, out FloorCallInput.Direction direction)
+    {
+        direction = FloorCallInput.Direction.Up;
+        int result = ConsoleKeyStringToDirection(key.ToString());
+        if (result < 0)
+        {
+            return false;
+        }
+        direction = (FloorCallInput.Direction)result;
+        return true;
+    }
+    static int ConsoleKeyStringToDirection(string key)
+    {
+        return key switch
+        {
+            "UpArrow" => 0,
+            "DownArrow" => 1,
+            _ => -1
+        };
+    }
     static int ConsoleKeyStringToInt(string key)
     {
         return key switch

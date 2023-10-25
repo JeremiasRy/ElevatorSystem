@@ -5,6 +5,7 @@ namespace ElevatorSystem.Src;
 
 public class MasterState
 {
+    int _selectedFloor = -1;
     readonly ElevatorOrchestrator _elevatorOrchestrator;
     readonly ViewController _viewController;
     readonly KeyboardInput _keyboardInput;
@@ -16,25 +17,43 @@ public class MasterState
             Tick();
             if (_keyboardInput.KeyboardKeyDown(out List<ConsoleKey> keys))
             {
-                foreach (ConsoleKey key in keys)
-                {
-                    if (KeyboardInput.ConvertConsoleKeyToInt(key, out int floor))
-                    {
-                        CallElevator(floor, FloorCallInput.Direction.Up);
-                    }
-                }
+                HandleUserInput(keys);
             };
             Thread.Sleep(20);
         }
     }
-    void CallElevator(int floor, FloorCallInput.Direction dir)
+    void HandleUserInput(List<ConsoleKey> keys)
+    {
+        foreach (ConsoleKey key in keys)
+        {
+            if (KeyboardInput.ConvertConsoleKeyToInt(key, out int floor))
+            {
+                _selectedFloor = floor;
+                ActivateFloorCallPanel(floor);
+                continue;
+            }
+            if (KeyboardInput.ConverstConsoleKeyToDirection(key, out FloorCallInput.Direction direction) && _selectedFloor != -1)
+            {
+                CallElevator(direction);
+            }
+        }
+    }
+    
+    void ActivateFloorCallPanel(int floor)
     {
         if (floor >= _constants.FloorCount - 1)
         {
+            _selectedFloor = -1;
             return;
         }
-        _elevatorOrchestrator.ActivateFloorCall(new FloorCallInput() { Floor = floor, RequestDirection = dir });
+        _elevatorOrchestrator.ActivateFloorCall(floor);
     }
+    void CallElevator(FloorCallInput.Direction direction)
+    {
+        _elevatorOrchestrator.CallElevator(_selectedFloor, direction);
+        _selectedFloor = -1;
+    }
+
     void CallElevatorPanelInput(int floor, int elevatorIdx)
     {
 

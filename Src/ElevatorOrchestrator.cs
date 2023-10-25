@@ -2,6 +2,7 @@
 using ElevatorSystem.Src.Data;
 using ElevatorSystem.Src.Inputs;
 using ElevatorSystem.Src.Simulation;
+using System.Xml.Serialization;
 using static ElevatorSystem.Src.Constants;
 using static ElevatorSystem.Src.Controllers.FloorController;
 
@@ -25,28 +26,24 @@ public class ElevatorOrchestrator
     {
         HandleRequests();
     }
-    public void ActivateFloorCall(FloorCallInput request)
+    public void ActivateFloorCall(int floor)
     {
-        FloorController floor = _floorControllers.FirstOrDefault(floor => floor.NthFloor == request.Floor) ?? throw new ArgumentException($"No such floor {request.Floor}");
-        if (request.RequestDirection == FloorCallInput.Direction.Up)
+        foreach (var floorController in _floorControllers)
         {
-            if (floor.UpCallState == FloorCallState.NotAvailable || floor.UpCallState == FloorCallState.ElevatorAssigned)
-            {
-                // Info not available
-                return;
-            }
-            floor.UpCallState = FloorCallState.Active;
-            return;
+            floorController.OpenPanel = floorController.NthFloor == floor;
         }
-        if (request.RequestDirection == FloorCallInput.Direction.Down || floor.DownCallState == FloorCallState.ElevatorAssigned)
+    }
+    public void CallElevator(int floor, FloorCallInput.Direction direction)
+    {
+        var floorController = _floorControllers.FirstOrDefault(floorController => floorController.NthFloor == floor) ?? throw new ArgumentException("Things shouldn't explode here");
+        if (direction == FloorCallInput.Direction.Up && floorController.UpCallState == FloorCallState.Idle)
         {
-            if (floor.DownCallState == FloorCallState.NotAvailable)
-            {
-                // Info not available
-                return;
-            }
-            floor.DownCallState = FloorCallState.Active;
+            floorController.UpCallState = FloorCallState.Active;
+        } else if (floorController.DownCallState == FloorCallState.Idle)
+        {
+            floorController.DownCallState = FloorCallState.Active;
         }
+        floorController.OpenPanel = false;
     }
     public void CallElevatorPanelInput(int floor, int elevatorIdx)
     {
