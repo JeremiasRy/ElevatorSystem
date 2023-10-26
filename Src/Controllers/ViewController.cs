@@ -7,17 +7,18 @@ public class ViewController
     private readonly Graphic _human;
     private readonly Graphic _elevator;
     private readonly Graphic _title;
+    private readonly ArrowPanel _arrowPanel;
     private readonly Info _info;
     private readonly ScreenBuffer _screenBuffer;
     private readonly ElevatorOrchestrator _elevatorOrchestrator;
     public void Draw()
     {
         DrawBackground();
-        foreach (var (row, col, floor) in _elevatorOrchestrator.ElevatorPositions)
+        foreach (var (row, col) in _elevatorOrchestrator.ElevatorPositions)
         {
-            foreach(var (elevatorRow, elevatorCol, ch) in _elevator.GetGraphicInPlace(row, col))
+            foreach(PicturePixel pixel in _elevator.GetGraphic(row, col))
             {
-                _screenBuffer.DrawToBuffer(ch, elevatorRow, elevatorCol);
+                _screenBuffer.DrawToBuffer(pixel);
             }
         }
         _screenBuffer.DrawBuffer();
@@ -45,28 +46,38 @@ public class ViewController
                 }
             }
         }
-        foreach (var (Row, Col, Ch) in _title.GetGraphicInPlace(0, _constants.SimulationArea + _constants.TitlePadding))
+        foreach (var pixel in _title.GetGraphic(0, _constants.SimulationArea + _constants.TitlePadding))
         {
-            _screenBuffer.DrawToBuffer(Ch, Row, Col);
+            _screenBuffer.DrawToBuffer(pixel);
         }
         var elevatorDataPoints = _elevatorOrchestrator.GetElevatorDataPoints();
         var floorDataPoints = _elevatorOrchestrator.GetFloorDataPoints();
-        foreach (PicturePixel pixel in _info.ReturnInfoPixels(elevatorDataPoints, floorDataPoints))
+        _info.SetInfoData(elevatorDataPoints, floorDataPoints);
+        foreach (PicturePixel pixel in _info.GetGraphic(TITLE_HEIGHT, _constants.SimulationArea + 5))
         {
-            _screenBuffer.DrawToBuffer(pixel.Ch, TITLE_HEIGHT + pixel.OffsetRow, _constants.SimulationArea + 5 + pixel.OffsetColumn);
+            _screenBuffer.DrawToBuffer(pixel);
         }
         foreach(var floorData in floorDataPoints.Where(dataObj => dataObj.PanelActive))
         {
-            var panel = ReturnPanel(
-                floorData.UpActive,
-                floorData.DownActive,
-                _constants.FloorPositions[floorData.NthFloor] - FLOOR_HEIGHT + 1,
-                _constants.SimulationArea - _constants.TotalElevatorShaftWidth - 4,
-                floorData.NthFloor == _constants.FloorPositions.Length - 2,
-                floorData.NthFloor == 0);
-            foreach (PicturePixel pixel in panel)
+            if (floorData.UpActive)
             {
-                _screenBuffer.DrawToBuffer(pixel.Ch, pixel.OffsetRow, pixel.OffsetColumn);
+                _arrowPanel.SetPanelStatusUpActive();
+            } else
+            {
+                _arrowPanel.SetPanelStatusUpInActive();
+            }
+
+            if (floorData.DownActive)
+            {
+                _arrowPanel.SetPanelStatusDownActive();
+            } else
+            {
+                _arrowPanel.SetPanelStatusDownInActive();
+            }
+
+            foreach (PicturePixel pixel in _arrowPanel.GetGraphic(_constants.FloorPositions[floorData.NthFloor] - FLOOR_HEIGHT + 1, _constants.SimulationArea - _constants.TotalElevatorShaftWidth - 4))
+            {
+                _screenBuffer.DrawToBuffer(pixel);
             }
         }
     }
@@ -79,6 +90,7 @@ public class ViewController
         _screenBuffer = ScreenBuffer.GetInstance();
         _constants = new Constants();
         _info = new Info();
+        _arrowPanel = new ArrowPanel();
     }
     public enum GraphicType
     {

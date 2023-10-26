@@ -1,15 +1,14 @@
-﻿namespace ElevatorSystem.Src.Graphics;
-public class Graphic
+﻿using System.Text;
+
+namespace ElevatorSystem.Src.Graphics;
+public class Graphic : IGraphic
 {
-    readonly PicturePixel[] _pixels;
-    public (int Row, int Col, char Ch)[] GetGraphicInPlace(int row, int col) 
-    {
-        return _pixels.Select(pixel => (row + pixel.OffsetRow, col + pixel.OffsetColumn, pixel.Ch)).ToArray(); 
-    }
+    readonly PicturePixelDefinition[] _pixelDefinitions;
+    public PicturePixel[] GetGraphic(int row, int col) => _pixelDefinitions.Select(pixelDefinition => pixelDefinition.ReturnPixel(row, col)).ToArray();
     public Graphic(string filePath)
     {
         using var sr = new StreamReader(filePath);
-        List<string> lines = new();
+        var lines = new List<string>();
         int count = 0;
         while (!sr.EndOfStream)
         {
@@ -17,13 +16,12 @@ public class Graphic
             lines.Add(line);
             count += line.Length;
         }
-        _pixels = new PicturePixel[count];
-        count = 0;
-        for (int iy = 0; iy < lines.Count; iy++)
+        _pixelDefinitions = new PicturePixelDefinition[count];
+        for (int row = 0; row < lines.Count; row++)
         {
-            for (int ix = 0; ix < lines[iy].Length; ix++)
+            for (int col = 0; col < lines[row].Length; col++)
             {
-                _pixels[count++] = new PicturePixel(iy, ix, lines[iy].ElementAt(ix));
+                _pixelDefinitions[row * lines[row].Length + col] = new PicturePixelDefinition(row, col, lines[row][col]);
             }
         }
     }

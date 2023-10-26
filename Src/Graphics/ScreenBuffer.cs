@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ElevatorSystem.Src.Graphics;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -24,6 +25,10 @@ public class ScreenBuffer
     public void DrawToBuffer(char ch, int row = 0, int col = 0)
     {
         _buffer[GetIndex(row, col)] = ch;
+    }
+    public void DrawToBuffer(PicturePixel pixel)
+    {
+        _buffer[GetIndex(pixel.Row, pixel.Column)] = pixel.Ch;
     }
 
     public void DrawBuffer()
