@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ElevatorSystem.Src.Data;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,10 +15,18 @@ public class ArrowPanel : IGraphic
     const string ARROW_DOWN = "\\ /\r\n v ";
     
     Active _panelStatus = 0;
+    readonly Constants _constants = new();
     readonly PicturePixelDefinition[] _arrowUp;
     readonly PicturePixelDefinition[] _arrowUpActive;
     readonly PicturePixelDefinition[] _arrowDown;
     readonly PicturePixelDefinition[] _arrowDownActive;
+    bool _upAvailable = true;
+    bool _downAvailable = true;
+    public void SetAvailableButtons(FloorData floorData)
+    {
+        _upAvailable = floorData.NthFloor != _constants.FloorCount - 2;
+        _downAvailable = floorData.NthFloor != 0;
+    }
 
     public void SetPanelStatusUpActive()
     {
@@ -54,14 +63,19 @@ public class ArrowPanel : IGraphic
     public PicturePixel[] GetGraphic(int row, int col)
     {
         List<PicturePixel> panel = new(_arrowUp.Length * 2);
-        
-        panel.AddRange((_panelStatus & Active.Up) == Active.Up 
-            ? _arrowUpActive.Select(pixelDefinition => pixelDefinition.ReturnPixel(row, col)) 
-            : _arrowUp.Select(pixelDefinition => pixelDefinition.ReturnPixel(row, col)));
 
-        panel.AddRange((_panelStatus & Active.Down) == Active.Down
-            ? _arrowDownActive.Select(pixelDefinition => pixelDefinition.ReturnPixel(row + 4, col))
-            : _arrowDown.Select(pixelDefinition => pixelDefinition.ReturnPixel(row + 4, col)));
+        if (_upAvailable)
+        {
+            panel.AddRange((_panelStatus & Active.Up) == Active.Up
+            ? _arrowUpActive.Select(pixelDefinition => pixelDefinition.ReturnPixel(row, col))
+            : _arrowUp.Select(pixelDefinition => pixelDefinition.ReturnPixel(row, col)));
+        }
+        if (_downAvailable)
+        {
+            panel.AddRange((_panelStatus & Active.Down) == Active.Down
+                ? _arrowDownActive.Select(pixelDefinition => pixelDefinition.ReturnPixel(row + 4, col))
+                : _arrowDown.Select(pixelDefinition => pixelDefinition.ReturnPixel(row + 4, col)));
+        }
 
         return panel.ToArray();
     }

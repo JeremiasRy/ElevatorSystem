@@ -74,8 +74,9 @@ public class ViewController
             {
                 _arrowPanel.SetPanelStatusDownInActive();
             }
-
-            foreach (PicturePixel pixel in _arrowPanel.GetGraphic(_constants.FloorPositions[floorData.NthFloor] - FLOOR_HEIGHT + 1, _constants.SimulationArea - _constants.TotalElevatorShaftWidth - 4))
+            _arrowPanel.SetAvailableButtons(floorData);
+            var graphic = _arrowPanel.GetGraphic(_constants.FloorPositions[floorData.NthFloor] - FLOOR_HEIGHT + 1, _constants.SimulationArea - _constants.TotalElevatorShaftWidth - 4);
+            foreach (PicturePixel pixel in graphic)
             {
                 _screenBuffer.DrawToBuffer(pixel);
             }
