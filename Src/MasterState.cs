@@ -8,6 +8,7 @@ public class MasterState
 {
     int _selectedFloor = -1;
     bool _openInputPanel = false;
+    int _openInputPanelElevatorId = -1;
     readonly ElevatorOrchestrator _elevatorOrchestrator;
     readonly ViewController _viewController;
     readonly KeyboardInput _keyboardInput;
@@ -35,6 +36,11 @@ public class MasterState
         {
             if (KeyboardInput.ConvertConsoleKeyToInt(key, out int floor))
             {
+                if (_openInputPanel)
+                {
+                    _elevatorOrchestrator.CallElevatorPanelInput(floor, _openInputPanelElevatorId);
+                    continue;
+                }
                 _selectedFloor = floor;
                 ActivateFloorCallPanel(floor);
                 continue;
@@ -71,6 +77,7 @@ public class MasterState
             return;
         }
         _openInputPanel = true;
+        _openInputPanelElevatorId = elevators[0].Id;
         PutHumansInsideElevator(matches);
     }
     void PutHumansInsideElevator(List<UserCall> userCalls)
@@ -79,6 +86,11 @@ public class MasterState
     void Tick()
     {
         _elevatorOrchestrator.Tick();
+        if (_openInputPanel)
+        {
+            bool[] inputPanel = _elevatorOrchestrator.GetElevatorData(_openInputPanelElevatorId).InputPanel;
+            _viewController.SetInputPanel(inputPanel);
+        }
         _viewController.Draw(_openInputPanel);
     }
     public MasterState()

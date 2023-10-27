@@ -12,6 +12,7 @@ public class PicturePixelDefinition
     readonly int _offsetRow;
     readonly char _ch;
     public PicturePixel ReturnPixel(int row, int col) => new(row + _offsetRow, col + _offsetColumn, _ch);
+    public PicturePixel ReturnPixel(int row, int col, char ch) => new(row + _offsetRow, col + _offsetColumn, ch);
     public PicturePixelDefinition(int row, int col, char ch)
     {
         _offsetColumn = col;

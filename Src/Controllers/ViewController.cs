@@ -12,6 +12,10 @@ public class ViewController
     private readonly ScreenBuffer _screenBuffer;
     private readonly ElevatorInputPanel _elevatorInputPanel;
     private readonly ElevatorOrchestrator _elevatorOrchestrator;
+    public void SetInputPanel(bool[] inputPanel)
+    {
+        _elevatorInputPanel.SetInputPanel(inputPanel);
+    }
     public void Draw(bool openPanel = false)
     {
         DrawBackground();
@@ -24,7 +28,7 @@ public class ViewController
         }
         if (openPanel)
         {
-            foreach(PicturePixel pixel in _elevatorInputPanel.GetGraphic(Console.WindowHeight / 10, Console.WindowWidth / 8))
+            foreach(PicturePixel pixel in _elevatorInputPanel.GetGraphic(Console.WindowHeight / 3, Console.WindowWidth / 3))
             {
                 _screenBuffer.DrawToBuffer(pixel);
             }

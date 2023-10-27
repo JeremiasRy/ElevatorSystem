@@ -18,6 +18,11 @@ public class ElevatorOrchestrator
     public (int Id, int Floor)[] ElevatorsAtFloor => _elevatorControllers
         .Where(shaft => shaft.ElevatorPosition.ElevatorRow != -1)
         .Select(elevatorController => (elevatorController.Id, elevatorController.ElevatorPosition.ElevatorFloor)).ToArray();
+    public ElevatorData GetElevatorData(int id)
+    {
+        var controller = _elevatorControllers.FirstOrDefault(elevatorController => elevatorController.Id == id) ?? throw new Exception("Things are exploding");
+        return ElevatorData.FromElevatorController(controller);
+    } 
     public List<ElevatorData> GetElevatorDataPoints()
     {
         return _elevatorControllers.Select(controller => ElevatorData.FromElevatorController(controller)).ToList();

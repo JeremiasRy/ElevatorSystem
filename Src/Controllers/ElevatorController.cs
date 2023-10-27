@@ -25,17 +25,12 @@ public class ElevatorController
     public FloorController? DestinationFloor => _floorControllers.Where(floorController => floorController.NthFloor == _primaryObjective.Destination).FirstOrDefault();
     public void HandleElevatorInputPanelRequest(int requestFloor)
     {
-        var check = ElevatorIsStationaryAtAFloor();
-        if (check != -1)
+        foreach (var kvPair in _elevatorInputPanel)
         {
-            if (requestFloor == ElevatorIsStationaryAtAFloor())
+            if (kvPair.Key == requestFloor)
             {
-                return;
+                _elevatorInputPanel[kvPair.Key] = true;
             }
-        }
-        if (_elevatorInputPanel.TryGetValue(check, out bool active))
-        {
-            _elevatorInputPanel[check] = !active || active;
         }
     }
     public void TakeAction()
