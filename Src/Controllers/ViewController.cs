@@ -10,13 +10,21 @@ public class ViewController
     private readonly ArrowPanel _arrowPanel;
     private readonly Info _info;
     private readonly ScreenBuffer _screenBuffer;
+    private readonly ElevatorInputPanel _elevatorInputPanel;
     private readonly ElevatorOrchestrator _elevatorOrchestrator;
-    public void Draw()
+    public void Draw(bool openPanel = false)
     {
         DrawBackground();
         foreach (var (row, col) in _elevatorOrchestrator.ElevatorPositions)
         {
             foreach(PicturePixel pixel in _elevator.GetGraphic(row, col))
+            {
+                _screenBuffer.DrawToBuffer(pixel);
+            }
+        }
+        if (openPanel)
+        {
+            foreach(PicturePixel pixel in _elevatorInputPanel.GetGraphic(Console.WindowHeight / 10, Console.WindowWidth / 8))
             {
                 _screenBuffer.DrawToBuffer(pixel);
             }
@@ -92,6 +100,7 @@ public class ViewController
         _constants = new Constants();
         _info = new Info();
         _arrowPanel = new ArrowPanel();
+        _elevatorInputPanel = new ElevatorInputPanel();
     }
     public enum GraphicType
     {

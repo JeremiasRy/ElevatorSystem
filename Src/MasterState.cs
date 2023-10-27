@@ -7,6 +7,7 @@ namespace ElevatorSystem.Src;
 public class MasterState
 {
     int _selectedFloor = -1;
+    bool _openInputPanel = false;
     readonly ElevatorOrchestrator _elevatorOrchestrator;
     readonly ViewController _viewController;
     readonly KeyboardInput _keyboardInput;
@@ -69,16 +70,16 @@ public class MasterState
         {
             return;
         }
+        _openInputPanel = true;
         PutHumansInsideElevator(matches);
     }
     void PutHumansInsideElevator(List<UserCall> userCalls)
     {
-
     }
     void Tick()
     {
         _elevatorOrchestrator.Tick();
-        _viewController.Draw();
+        _viewController.Draw(_openInputPanel);
     }
     public MasterState()
     {
