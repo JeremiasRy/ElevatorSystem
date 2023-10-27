@@ -12,10 +12,10 @@ public class ElevatorData
     {
         return new ElevatorData()
         {
-            InputPanel = elevatorController.ReturnInputPanelValues(),
-            Destination = elevatorController.Destination is null ? -1 : elevatorController.Destination.Row,
+            InputPanel = elevatorController.InputPanelValues,
+            Destination = elevatorController.DestinationFloor is null ? -1 : elevatorController.DestinationFloor.Row,
             CurrentLocation = elevatorController.ElevatorPosition.ElevatorRow,
-            DestinationFloor = elevatorController.Destination is null ? -1 : elevatorController.Destination.NthFloor
+            DestinationFloor = elevatorController.DestinationFloor is null ? -1 : elevatorController.DestinationFloor.NthFloor
         };
     }
 }

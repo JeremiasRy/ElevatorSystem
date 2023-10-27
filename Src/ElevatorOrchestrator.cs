@@ -30,7 +30,7 @@ public class ElevatorOrchestrator
     {
         HandleRequests();
     }
-    public void ActivateFloorCall(int floor)
+    public void ActivateFloorCall(int floor) 
     {
         foreach (var floorController in _floorControllers)
         {
@@ -55,8 +55,26 @@ public class ElevatorOrchestrator
     }
     void HandleRequests()
     {
+        var activeFloors = _floorControllers.Where(floorController => floorController.DownCallState == FloorCallState.Active || floorController.UpCallState == FloorCallState.Active);
+
+        if (activeFloors.Any())
+        {
+            foreach (var floorController in activeFloors)
+            {
+                var freeElevatorsNearby = _elevatorControllers
+                    .Where(elevator => !elevator.IsBusy)
+                    .OrderBy(elevator => Math.Abs(elevator.ElevatorPosition.ElevatorFloor - floorController.NthFloor));
+
+                if (!freeElevatorsNearby.Any())
+                {
+                    break;
+                }
+                freeElevatorsNearby.First().SuggestFloorCall(floorController);
+            }
+        }
         foreach (var elevatorController in _elevatorControllers)
         {
+            elevatorController.EveryoneIsBusy = _elevatorControllers.All(elevator => elevator.IsBusy);
             elevatorController.TakeAction();
         }
     }

@@ -6,7 +6,8 @@ namespace ElevatorSystem.Src.Controllers;
 public class ElevatorController
 {
     static int _idCount = 1;
-    int _currentDestination = -1;
+    readonly Objective _primaryObjective = new ();
+    int _intermediateObjective = -1;
     int _doorOpenSequence = 0;
     public readonly int Id;
     readonly Constants _constants = new();
@@ -16,10 +17,12 @@ public class ElevatorController
     /// Input panel Key is floor number Value is active
     /// </summary>
     readonly Dictionary<int, bool> _elevatorInputPanel;
-    public bool[] ReturnInputPanelValues() => _elevatorInputPanel.OrderBy(kv => kv.Key).Select(kv => kv.Value).ToArray();
+    public bool IsBusy => _primaryObjective.Destination != -1;
+    public bool[] InputPanelValues => _elevatorInputPanel.OrderBy(kv => kv.Key).Select(kv => kv.Value).ToArray();
     public int Column { get; init; }
+    public bool EveryoneIsBusy { get; set; }
     public (int ElevatorRow, int ElevatorColumn, int ElevatorFloor) ElevatorPosition => (_elevator.Row - ELEVATOR_HEIGHT, Column + PADDING, ElevatorIsStationaryAtAFloor());
-    public FloorController? Destination => _floorControllers.Where(floorController => floorController.NthFloor == _currentDestination).FirstOrDefault();
+    public FloorController? DestinationFloor => _floorControllers.Where(floorController => floorController.NthFloor == _primaryObjective.Destination).FirstOrDefault();
     public void HandleElevatorInputPanelRequest(int requestFloor)
     {
         var check = ElevatorIsStationaryAtAFloor();
@@ -37,8 +40,9 @@ public class ElevatorController
     }
     public void TakeAction()
     {
-        if(_doorOpenSequence-- > 0)
+        if(_doorOpenSequence > 0)
         {
+            _doorOpenSequence--;
             return;
         }
         PrioritizeRequest();
@@ -46,57 +50,71 @@ public class ElevatorController
     }
     void PrioritizeRequest()
     {
-        if (Destination is not null && Destination.Row == _elevator.Row)
-        {
+        if (DestinationFloor is not null && DestinationFloor.NthFloor == ElevatorIsStationaryAtAFloor())
+        { 
             HandleCorrectFloor();
             return;
         }
-        if (_currentDestination > -1)
+       
+        // keep on going forward. No need to handle more than 2 things at a time
+        if (_intermediateObjective > -1)
         {
+            if (ElevatorIsStationaryAtAFloor() == _intermediateObjective)
+            {
+                ChangeFloorCallStateToIdle(_floorControllers[_intermediateObjective]);
+            }
             return;
+        }
+        var activeFloors = _floorControllers
+            .Where(floorController => floorController.DownCallState == FloorCallState.Active || floorController.UpCallState == FloorCallState.Active)
+            .OrderBy(floorController => Math.Abs(floorController.Row - _elevator.Row));
+
+        // inputpanel is active and everyone is doing something so check if there is something to do
+        if (_primaryObjective.Destination > -1 && _primaryObjective.Source == SourceOfRequest.InputPanel && EveryoneIsBusy && activeFloors.Any())
+        {
+            var direction = _floorControllers[_primaryObjective.Destination].Row - _elevator.Row;
+            if (direction < 0)
+            {
+                var possiblefloorToAnswer = activeFloors.FirstOrDefault(floor => floor.UpCallState == FloorCallState.Active);
+                if (possiblefloorToAnswer is not null)
+                {
+                    _intermediateObjective = possiblefloorToAnswer.NthFloor;
+                    ChangeFloorCallStateToAssigned(_floorControllers[_intermediateObjective]);
+                }
+                return;
+            }
+            if (direction > 0)
+            {
+                var possiblefloorToAnswer = activeFloors.FirstOrDefault(floor => floor.DownCallState == FloorCallState.Active);
+                if (possiblefloorToAnswer is not null)
+                {
+                    _intermediateObjective = possiblefloorToAnswer.NthFloor;
+                    ChangeFloorCallStateToAssigned(_floorControllers[_intermediateObjective]);
+                }
+                return;
+            }
         }
         if (ActiveInputPanelValue())
         {
             HandleInputPanelRequests();
             return;
         }
-        var activeFloors = _floorControllers.Where(floorController => floorController.DownCallState == FloorCallState.Active || floorController.UpCallState == FloorCallState.Active);
-
-        if (activeFloors.Any())
-        {
-            HandleFloorCallRequests(activeFloors);
-        }
     }
-    void HandleFloorCallRequests(IEnumerable<FloorController> activeFloors)
+    public void SuggestFloorCall(FloorController floorController)
     {
-        CheckIfCanAnswerFloorCallWithoutMoving(activeFloors);
-        if (!activeFloors.Any())
-        {
-            return;
-        }
         var check = ElevatorIsStationaryAtAFloor();
-        if (check != -1)
+        if (check != -1 && _primaryObjective.Destination == -1)
         {
-            var destinationFloor = activeFloors
-                .OrderBy(floorcontroller => Math.Abs(floorcontroller.NthFloor - check))
-                .First();
-
-            _currentDestination = destinationFloor.NthFloor;
-            if (destinationFloor.DownCallState == FloorCallState.Active)
-            {
-                destinationFloor.DownCallState = FloorCallState.ElevatorAssigned;
-            }
-            else if (destinationFloor.UpCallState == FloorCallState.Active)
-            {
-                destinationFloor.UpCallState = FloorCallState.ElevatorAssigned;
-            }
+            _primaryObjective.Destination = floorController.NthFloor;
+            _primaryObjective.Source = SourceOfRequest.FloorCall;
+            ChangeFloorCallStateToAssigned(floorController);
             return;
         }
     }
     void HandleInputPanelRequests()
     {
         IEnumerable<int> requestedFloors = _elevatorInputPanel.Where(request => request.Value).Select(request => request.Key);
-        if (_currentDestination == -1)
+        if (_primaryObjective.Destination == -1)
         {
             var check = ElevatorIsStationaryAtAFloor();
             if (check != -1)
@@ -104,62 +122,57 @@ public class ElevatorController
                 var nearestDestination = requestedFloors
                     .OrderBy(request => Math.Abs(request - check))
                     .First();
-                _currentDestination = nearestDestination;
+                _primaryObjective.Destination = nearestDestination;
+                _primaryObjective.Source = SourceOfRequest.InputPanel;
                 return;
             }
+            _elevatorInputPanel[check] = false;
         }
     }
     void HandleCorrectFloor()
     {
-        if (Destination!.UpCallState == FloorCallState.ElevatorAssigned)
-        {
-            Destination.UpCallState = FloorCallState.Idle;
-        }
-        else if (Destination.DownCallState == FloorCallState.ElevatorAssigned)
-        {
-            Destination.DownCallState = FloorCallState.Idle;
-        }
-        _currentDestination = -1;
+        ChangeFloorCallStateToIdle(DestinationFloor!);
+        // also check input panel here
+        _primaryObjective.Destination = -1;
         _doorOpenSequence = 5;
     }
     void Move()
     {
-        if (Destination is null)
+        if (_primaryObjective.Destination == -1)
         {
-            _elevator.Input(0);
             return;
         }
-        if (Destination is not null && Destination.Row == _elevator.Row)
-        {
-            _elevator.Input(0);
-            return;
-        }
-
-        Elevator.Motor motor = Destination!.Row - _elevator.Row < 0 
+        var destination = _intermediateObjective > -1 ? _floorControllers[_intermediateObjective] : _floorControllers[_primaryObjective.Destination];
+        Elevator.Motor motor = destination.Row < _elevator.Row
             ? Elevator.Motor.Up 
             : Elevator.Motor.Down;
 
         _elevator.Input(motor);
     }
-    void CheckIfCanAnswerFloorCallWithoutMoving(IEnumerable<FloorController> activeFloors)
+    static void ChangeFloorCallStateToIdle(FloorController floorController)
     {
-        var check = ElevatorIsStationaryAtAFloor();
-        if (check != -1)
+        if (floorController.DownCallState == FloorCallState.ElevatorAssigned)
         {
-            var floorMatch = activeFloors.FirstOrDefault(floorController => floorController.NthFloor == check);
-            if (floorMatch is not null)
-            {
-                // Elevator was available in the floor only take one of the calls if there are two
-                if (floorMatch.UpCallState == FloorCallState.Active)
-                {
-                    floorMatch.UpCallState = FloorCallState.Idle;
-                } 
-                else if (floorMatch.DownCallState == FloorCallState.Active)
-                {
-                    floorMatch.DownCallState = FloorCallState.Idle;
-                }
-                _doorOpenSequence = 5;
-            }
+            floorController.DownCallState = FloorCallState.Idle;
+            return;
+        } 
+        if (floorController.UpCallState == FloorCallState.ElevatorAssigned)
+        {
+            floorController.UpCallState = FloorCallState.Idle;
+            return;
+        }
+    }
+    static void ChangeFloorCallStateToAssigned(FloorController floorController)
+    {
+        if (floorController.DownCallState == FloorCallState.Active)
+        {
+            floorController.DownCallState = FloorCallState.ElevatorAssigned;
+            return;
+        }
+        if (floorController.UpCallState == FloorCallState.Active)
+        {
+            floorController.UpCallState = FloorCallState.ElevatorAssigned;
+            return;
         }
     }
     bool ActiveInputPanelValue() => _elevatorInputPanel.Values.Any(value => value);
@@ -187,5 +200,15 @@ public class ElevatorController
             _elevatorInputPanel.Add(i, false);
         }
         _floorControllers = floorControllers;
+    }
+    internal class Objective
+    {
+        public int Destination { get; set; } = -1;
+        public SourceOfRequest Source { get; set; }
+    }
+    public enum SourceOfRequest
+    {
+        InputPanel,
+        FloorCall
     }
 }
