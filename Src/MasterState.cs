@@ -38,14 +38,14 @@ public class MasterState
         {
             foreach (var key in keys)
             {
-                if (KeyboardInput.ConvertConsoleKeyToInt(key, out int floor))
+                if (KeyboardInput.ConvertConsoleKeyToInt(key, out int floor) && !_openInputPanel)
                 {
                     ActivateFloorCallPanel(floor);
                     break;
                 }
                 if (KeyboardInput.ConvertConsoleKeyToDirection(key, out UserCall.Direction direction) && _selectedFloor != -1)
                 {
-                    CallElevator(direction);
+                    ActivateFloorCall(direction);
                     break;
                 }
             }
@@ -70,7 +70,7 @@ public class MasterState
         }
         _selectedFloor = floor;
     }
-    void CallElevator(UserCall.Direction direction)
+    void ActivateFloorCall(UserCall.Direction direction)
     {
         var result = _elevatorOrchestrator.CallElevator(_selectedFloor, direction);
         if (result)

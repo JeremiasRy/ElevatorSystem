@@ -11,6 +11,7 @@ public class ElevatorOrchestrator
     readonly Constants _constants = new();
     readonly ElevatorController[] _elevatorControllers = new ElevatorController[ELEVATOR_COUNT];
     readonly FloorController[] _floorControllers;
+    IEnumerable<FloorController> ActiveFloors() => _floorControllers.Where(floorController => floorController.IsActive());
     public (int Row, int Column)[] GetElevatorPositions() => _elevatorControllers.Select(controller => controller.ElevatorPosition()).ToArray();
     public ElevatorController GetElevatorControllerById(int id) => _elevatorControllers.FirstOrDefault(elevatorController => elevatorController.Id == id) ?? throw new Exception("No such elevator!!!");
     public ElevatorData GetElevatorData(int id)
@@ -56,7 +57,6 @@ public class ElevatorOrchestrator
     }
     void HandleRequests()
     {
-        // do some conducting
     }
     public ElevatorOrchestrator()
     {

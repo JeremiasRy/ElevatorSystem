@@ -5,20 +5,43 @@ namespace ElevatorSystem.Src.Controllers;
 public class ElevatorController
 {
     static int _idCount = 1;
+    readonly int _column;
     readonly ElevatorData _data = new();
     readonly Objective _primaryObjective = new();
     readonly Objective _intermediateObjective = new();
-    Objective ActiveObject() => _intermediateObjective.Destination > -1 ? _intermediateObjective : _primaryObjective;
-    readonly int _column;
-    int _doorOpenSequence = 0;
-    public readonly int Id;
     readonly Constants _constants = new();
     readonly Elevator _elevator;
-    /// <summary>
-    /// Input panel Key is floor number Value is active
-    /// </summary>
     readonly Dictionary<int, bool> _elevatorInputPanel;
+    int _doorOpenSequence = 0;
+    public readonly int Id;
+    Objective ActiveObject() => _intermediateObjective.Destination > -1 
+        ? _intermediateObjective 
+        : _primaryObjective;
+
     bool ActiveInputPanelValue() => _elevatorInputPanel.Values.Any(value => value);
+    public int DistanceFromFloor(int floor)
+    {
+        return Math.Abs(_constants.FloorPositions[floor] - _elevator.Row); 
+    }
+    public bool IsBusy() => _intermediateObjective.Destination > -1;
+    public bool ActivateInputPanelValue(int floor)
+    {
+        if (floor == ElevatorFloor())
+        {
+            return false;
+        }
+        _elevatorInputPanel[floor] = true;
+        return true;
+    } 
+    public void ReceiveFloorCalls(List<FloorController> activeFloors)
+    {
+
+    }
+    public void Tick()
+    {
+
+    }
+    public int ElevatorFloor() => Array.IndexOf(_constants.FloorPositions, _elevator.Row);
     public (int Row, int Col) ElevatorPosition() => (_elevator.Row, _column);
     public ElevatorData ReturnData()
     {
