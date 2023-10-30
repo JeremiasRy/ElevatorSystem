@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ElevatorSystem.Src.Data;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,13 +11,13 @@ public class FloorController
 {
     FloorCallState _downCallState = FloorCallState.Idle;
     FloorCallState _upCallState = FloorCallState.Idle;
+    FloorData _data = new();
     public int NthFloor { get; set; }
     public int Row { get; set; }
-    public bool OpenPanel { get; set; }
     public FloorCallState DownCallState
     {
         get => _downCallState;
-        set
+        private set
         {
             if (_downCallState == FloorCallState.NotAvailable)
             {
@@ -28,7 +29,7 @@ public class FloorController
     public FloorCallState UpCallState
     {
         get => _upCallState;
-        set
+        private set
         {
             if (_upCallState == FloorCallState.NotAvailable)
             {
@@ -36,6 +37,16 @@ public class FloorController
             }
             _upCallState = value;
         }
+    }
+    public void SetUpCallStateToIdle() => _upCallState = FloorCallState.Idle;
+    public void SetDownCallStateToIdle() => _downCallState = FloorCallState.Idle;
+    public void SetUpCallStateToAssigned() => _upCallState = FloorCallState.ElevatorAssigned;
+    public void SetDownCallStateToAssigned() => _downCallState = FloorCallState.ElevatorAssigned;
+    public FloorData ReturnData()
+    {
+        _data.UpActive = _upCallState == FloorCallState.Active || _upCallState == FloorCallState.ElevatorAssigned;
+        _data.DownActive = _downCallState == FloorCallState.Active || _downCallState == FloorCallState.ElevatorAssigned;
+        return _data;
     }
     public FloorController(int nthFloor, int row)
     {
@@ -50,6 +61,7 @@ public class FloorController
         }
         NthFloor = nthFloor;
         Row = row;
+        _data.NthFloor = NthFloor;
     }
     public enum FloorCallState
     {

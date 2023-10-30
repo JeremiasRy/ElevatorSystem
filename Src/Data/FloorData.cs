@@ -12,15 +12,4 @@ public class FloorData
     public bool UpActive { get; set; }
     public bool DownActive { get; set; }
     public int NthFloor { get; set; }
-    public bool PanelActive { get; set; }
-    public static FloorData FromFloorController(FloorController floorController)
-    {
-        return new FloorData() 
-        {
-            UpActive = floorController.UpCallState == FloorController.FloorCallState.Active || floorController.UpCallState == FloorController.FloorCallState.ElevatorAssigned,
-            DownActive = floorController.DownCallState == FloorController.FloorCallState.Active || floorController.DownCallState == FloorController.FloorCallState.ElevatorAssigned,
-            NthFloor = floorController.NthFloor,
-            PanelActive = floorController.OpenPanel,
-        };
-    }
 }

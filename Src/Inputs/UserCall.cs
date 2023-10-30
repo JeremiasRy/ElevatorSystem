@@ -13,12 +13,14 @@ public class UserCall
     public UserCallState State { get; set; }
     public int UserWeight { get; set; }
     public int Id { get; set; }
-    public int Floor { get; set; }
+    public int InElevatorId { get; set; }
+    public int StartFloor { get; set; }
+    public int EndFloor { get; set; } = -1;
     public Direction RequestDirection { get; set; }
     public UserCall(int floor, Direction direction)
     {
         Id = _idCount++;
-        Floor = floor;
+        StartFloor = floor;
         RequestDirection = direction;
         UserWeight = _random.Next(50, 110);
         

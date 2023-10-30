@@ -27,7 +27,7 @@ public class Info : IGraphic
         foreach (var elevatorDataPoint in ElevatorData)
         {
             stringBuilder.AppendLine($"Elevator {count++}");
-            stringBuilder.AppendLine($"Destination Row: {elevatorDataPoint.Destination}");
+            stringBuilder.AppendLine($"Destination Row: {elevatorDataPoint.DestinationRow}");
             stringBuilder.AppendLine($"Current Row: {elevatorDataPoint.CurrentLocation}");
             stringBuilder.AppendLine($"Destination Floor: {elevatorDataPoint.DestinationFloor}");
             stringBuilder.AppendLine("--");
