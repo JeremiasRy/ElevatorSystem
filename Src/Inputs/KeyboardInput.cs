@@ -30,7 +30,7 @@ public class KeyboardInput
         return value >= 0;
         
     }
-    public static bool ConverstConsoleKeyToDirection(ConsoleKey key, out UserCall.Direction direction)
+    public static bool ConvertConsoleKeyToDirection(ConsoleKey key, out UserCall.Direction direction)
     {
         direction = UserCall.Direction.Up;
         int result = ConsoleKeyStringToDirection(key.ToString());

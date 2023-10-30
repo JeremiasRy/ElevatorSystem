@@ -19,32 +19,47 @@ public class MasterState
     public void StartTick()
     {
         int tickCount = 0;
-        
         while (true)
         {
-            SetupView();
-            _viewController.Draw(_openInputPanel);
-            if (tickCount == 10)
+            if (tickCount++ == 10)
             {
                 Tick();
                 tickCount = 0;
             }
-
-            tickCount++;
+            CheckKeyboardInput();
+            SetupView();
+            _viewController.Draw(_openInputPanel);
             Thread.Sleep(20);
+        }
+    }
+    void CheckKeyboardInput()
+    {
+        if (_keyboardInput.KeyboardKeyDown(out List<ConsoleKey> keys))
+        {
+            foreach (var key in keys)
+            {
+                if (KeyboardInput.ConvertConsoleKeyToInt(key, out int floor))
+                {
+                    ActivateFloorCallPanel(floor);
+                    break;
+                }
+                if (KeyboardInput.ConvertConsoleKeyToDirection(key, out UserCall.Direction direction) && _selectedFloor != -1)
+                {
+                    CallElevator(direction);
+                    break;
+                }
+            }
         }
     }
     void SetupView()
     {
-        _viewController.SetOpenFLoorInput(_selectedFloor);
+        _viewController.SetOpenFloorInput(_selectedFloor);
         _viewController.SetInfoData(_elevatorOrchestrator.GetElevatorDataPoints(), _elevatorOrchestrator.GetFloorDataPoints());
         _viewController.SetElevatorPositions(_elevatorOrchestrator.GetElevatorPositions());
-    }
-    void HandleUserInput(List<ConsoleKey> keys)
-    {
-    }
-    void HandleUserCallsElevatorInputPanel(int floor)
-    {
+        if (_openInputPanel)
+        {
+            _viewController.SetInputPanel(_elevatorOrchestrator.GetElevatorControllerById(_openInputPanelElevatorId).ReturnData().InputPanel);
+        }
     }
     void ActivateFloorCallPanel(int floor)
     {
@@ -57,16 +72,12 @@ public class MasterState
     }
     void CallElevator(UserCall.Direction direction)
     {
-
-    }
-
-    void HandleElevatorsToUserCalls()
-    {
-
-    }
-    void PutHumansInsideElevator(IEnumerable<UserCall> userCalls, ElevatorController elevator)
-    {
-
+        var result = _elevatorOrchestrator.CallElevator(_selectedFloor, direction);
+        if (result)
+        {
+            _userCalls.Add(new UserCall(_selectedFloor, direction));
+        }
+        _selectedFloor = -1;
     }
     void Tick()
     {

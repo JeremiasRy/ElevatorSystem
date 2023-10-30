@@ -35,9 +35,20 @@ public class ElevatorOrchestrator
     {
         HandleRequests();
     }
-    public void CallElevator(int floor, UserCall.Direction direction)
+    public bool CallElevator(int floor, UserCall.Direction direction)
     {
-
+        if (floor > _constants.FloorCount - 2)
+        {
+            return false;
+        }
+        var controller = _floorControllers[floor];
+        if (direction == UserCall.Direction.Up)
+        {
+            return controller.SetUpCallStateToActive();
+        } else
+        {
+            return controller.SetDownCallStateToActive();
+        }
     }
     public void CallElevatorPanelInput(int floor, int elevatorId)
     {

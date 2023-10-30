@@ -14,40 +14,33 @@ public class ViewController
     private readonly ElevatorInputPanel _elevatorInputPanel;
     private readonly (int Row, int Col)[] _elevatorPositions = new (int Row, int Col)[ELEVATOR_COUNT];
     int _openFloorInput = -1;
-    public void SetInputPanel(bool[] inputPanel)
+    void DrawElevatorInputPanel()
     {
-        _elevatorInputPanel.SetInputPanel(inputPanel);
+        foreach (PicturePixel pixel in _elevatorInputPanel.GetGraphic(Console.WindowHeight / 3, Console.WindowWidth / 3))
+        {
+            _screenBuffer.DrawToBuffer(pixel);
+        }
     }
-    public void Draw(bool openPanel = false)
+    void DrawElevators()
     {
-        DrawBackground();
         foreach (var (row, col) in _elevatorPositions)
         {
-            foreach(PicturePixel pixel in _elevator.GetGraphic(row, col))
+            foreach (PicturePixel pixel in _elevator.GetGraphic(row, col))
             {
                 _screenBuffer.DrawToBuffer(pixel);
             }
         }
-        if (openPanel)
-        {
-            foreach(PicturePixel pixel in _elevatorInputPanel.GetGraphic(Console.WindowHeight / 3, Console.WindowWidth / 3))
-            {
-                _screenBuffer.DrawToBuffer(pixel);
-            }
-        }
-        _screenBuffer.DrawBuffer();
     }
-    public void SetInfoData(List<ElevatorData> elevatorData, List<FloorData> floorData)
-    {
-        _info.SetInfoData(elevatorData, floorData);
-    }
-    public void DrawBackground() 
+    void DrawFloors()
     {
         string floorStr = new('-', _constants.SimulationArea - _constants.TotalElevatorShaftWidth);
         foreach (int floor in _constants.FloorPositions)
         {
             _screenBuffer.DrawToBuffer(floorStr, floor);
         }
+    }
+    void DrawShafsAndCables()
+    {
         for (int i = Console.WindowHeight - 1; i >= 0; i--)
         {
             foreach (var shaft in _constants.ShaftPositions)
@@ -64,41 +57,76 @@ public class ViewController
                 }
             }
         }
+    }
+    void DrawTitle()
+    {
         foreach (var pixel in _title.GetGraphic(0, _constants.SimulationArea + _constants.TitlePadding))
         {
             _screenBuffer.DrawToBuffer(pixel);
         }
-        
+    }
+    void DrawInfo()
+    {
         foreach (PicturePixel pixel in _info.GetGraphic(TITLE_HEIGHT, _constants.SimulationArea + 5))
         {
             _screenBuffer.DrawToBuffer(pixel);
         }
+    }
+    void DrawFloorInput()
+    {
+        var visibleFloorInput = _info.FloorData[_openFloorInput];
+        if (visibleFloorInput.UpActive)
+        {
+            _arrowPanel.SetPanelStatusUpActive();
+        }
+        else
+        {
+            _arrowPanel.SetPanelStatusUpInActive();
+        }
+        if (visibleFloorInput.DownActive)
+        {
+            _arrowPanel.SetPanelStatusDownActive();
+        }
+        else
+        {
+            _arrowPanel.SetPanelStatusDownInActive();
+        }
+        _arrowPanel.SetAvailableButtons(visibleFloorInput);
+        var graphic = _arrowPanel.GetGraphic(_constants.FloorPositions[visibleFloorInput.NthFloor] - FLOOR_HEIGHT + 1, _constants.SimulationArea - _constants.TotalElevatorShaftWidth - 4);
+        foreach (PicturePixel pixel in graphic)
+        {
+            _screenBuffer.DrawToBuffer(pixel);
+        }
+    }
+    void DrawBackground() 
+    {
+        DrawFloors();
+        DrawShafsAndCables();
+        DrawTitle();
+        DrawInfo();
+    }
+    public void Draw(bool openPanel = false)
+    {
+        DrawBackground();
+        DrawElevators();
         if (_openFloorInput > -1)
         {
-            var visibleFloorInput = _info.FloorData[_openFloorInput];                
-            if (visibleFloorInput.UpActive)            
-            {            
-                _arrowPanel.SetPanelStatusUpActive();               
-            }            
-            else            
-            {            
-                _arrowPanel.SetPanelStatusUpInActive();                
-            }           
-            if (visibleFloorInput.DownActive)            
-            {           
-                _arrowPanel.SetPanelStatusDownActive();
-            }
-            else
-            {
-                _arrowPanel.SetPanelStatusDownInActive(); 
-            }
-            _arrowPanel.SetAvailableButtons(visibleFloorInput);
-            var graphic = _arrowPanel.GetGraphic(_constants.FloorPositions[visibleFloorInput.NthFloor] - FLOOR_HEIGHT + 1, _constants.SimulationArea - _constants.TotalElevatorShaftWidth - 4);
-            foreach (PicturePixel pixel in graphic)
-            {
-                _screenBuffer.DrawToBuffer(pixel);
-            }
+            DrawFloorInput();
         }
+
+        if (openPanel)
+        {
+            DrawElevatorInputPanel();
+        }
+        _screenBuffer.DrawBuffer();
+    }
+    public void SetInfoData(List<ElevatorData> elevatorData, List<FloorData> floorData)
+    {
+        _info.SetInfoData(elevatorData, floorData);
+    }
+    public void SetInputPanel(bool[] inputPanel)
+    {
+        _elevatorInputPanel.SetInputPanel(inputPanel);
     }
     public void SetElevatorPositions((int Row, int Col)[] elevatorPositions)
     {
@@ -108,7 +136,7 @@ public class ViewController
             _elevatorPositions[i].Col = elevatorPositions[i].Col + PADDING;
         }
     }
-    public void SetOpenFLoorInput(int floor) => _openFloorInput = floor;
+    public void SetOpenFloorInput(int floor) => _openFloorInput = floor;
     public ViewController()
     {
         _elevator = new Graphic("../../../Assets/Elevator.txt");

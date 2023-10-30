@@ -11,37 +11,65 @@ public class FloorController
 {
     FloorCallState _downCallState = FloorCallState.Idle;
     FloorCallState _upCallState = FloorCallState.Idle;
-    FloorData _data = new();
+    readonly FloorData _data = new();
     public int NthFloor { get; set; }
     public int Row { get; set; }
-    public FloorCallState DownCallState
+    public bool SetUpCallStateToIdle()
     {
-        get => _downCallState;
-        private set
+        if (_upCallState == FloorCallState.NotAvailable)
         {
-            if (_downCallState == FloorCallState.NotAvailable)
-            {
-                return;
-            }
-            _downCallState = value;
+            return false;
         }
+        _upCallState = FloorCallState.Idle;
+        return true;
     }
-    public FloorCallState UpCallState
+    public bool SetUpCallStateToAssigned()
     {
-        get => _upCallState;
-        private set
+        if (_upCallState == FloorCallState.NotAvailable)
         {
-            if (_upCallState == FloorCallState.NotAvailable)
-            {
-                return;
-            }
-            _upCallState = value;
+            return false;
         }
+        _upCallState = FloorCallState.ElevatorAssigned;
+        return true;
     }
-    public void SetUpCallStateToIdle() => _upCallState = FloorCallState.Idle;
-    public void SetDownCallStateToIdle() => _downCallState = FloorCallState.Idle;
-    public void SetUpCallStateToAssigned() => _upCallState = FloorCallState.ElevatorAssigned;
-    public void SetDownCallStateToAssigned() => _downCallState = FloorCallState.ElevatorAssigned;
+    public bool SetUpCallStateToActive()
+    {
+        if (_upCallState == FloorCallState.NotAvailable)
+        {
+            return false;
+        }
+        _upCallState = FloorCallState.Active;
+        return true;
+    }
+    public bool SetDownCallStateToIdle()
+    {
+        if (_downCallState == FloorCallState.NotAvailable)
+        {
+            return false;
+        }
+        _downCallState = FloorCallState.Idle;
+        return true;
+    }
+
+    public bool SetDownCallStateToAssigned()
+    {
+        if (_downCallState == FloorCallState.NotAvailable)
+        {
+            return false;
+        }
+        _downCallState = FloorCallState.ElevatorAssigned;
+        return true;
+    }
+    
+    public bool SetDownCallStateToActive()
+    {
+        if (_downCallState == FloorCallState.NotAvailable)
+        {
+            return false;
+        }
+        _downCallState = FloorCallState.Active;
+        return true;
+    }
     public FloorData ReturnData()
     {
         _data.UpActive = _upCallState == FloorCallState.Active || _upCallState == FloorCallState.ElevatorAssigned;
@@ -53,11 +81,11 @@ public class FloorController
         var constants = new Constants();
         if (nthFloor == 0)
         {
-            DownCallState = FloorCallState.NotAvailable;
+            _downCallState = FloorCallState.NotAvailable;
         }
         if (nthFloor == constants.FloorCount - 2)
         {
-            UpCallState = FloorCallState.NotAvailable;
+            _upCallState = FloorCallState.NotAvailable;
         }
         NthFloor = nthFloor;
         Row = row;
