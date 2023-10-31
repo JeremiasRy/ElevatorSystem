@@ -11,6 +11,7 @@ public class MasterState
     bool _openInputPanel = false;
     int _openInputPanelElevatorId = -1;
     int _openInputPanelUserId = -1;
+    int _keyPressCoolDown = -1;
     readonly ElevatorOrchestrator _elevatorOrchestrator;
     readonly ViewController _viewController;
     readonly KeyboardInput _keyboardInput;
@@ -21,32 +22,66 @@ public class MasterState
         int tickCount = 0;
         while (true)
         {
-            if (tickCount++ == 10)
+            if (tickCount++ == 2)
             {
                 Tick();
                 tickCount = 0;
             }
-            CheckKeyboardInput();
+            if (!_openInputPanel)
+            {
+                CheckUserCalls();
+            }
+            if (_keyPressCoolDown == 0)
+            {
+                CheckKeyboardInput();
+            }
+            _keyPressCoolDown = _keyPressCoolDown - 1 < 0 ? 0 : _keyPressCoolDown - 1;
             SetupView();
             _viewController.Draw(_openInputPanel);
             Thread.Sleep(20);
+        }
+    }
+    void CheckUserCalls()
+    {
+        var matches = _userCalls
+            .Where(userCall => _elevatorOrchestrator.GetElevatorsIdleAtFloor().Any(elevator => elevator.Floor == userCall.StartFloor) && userCall.State == UserCall.UserCallState.WaitingForElevator)
+            .Select(userCall => new
+            {
+               Call = userCall,
+                ElevatorId = _elevatorOrchestrator.GetElevatorsIdleAtFloor().First(elevator => elevator.Floor == userCall.StartFloor).Id,
+           });
+        if (matches.Any())
+        {
+            var match = matches.First();
+            _openInputPanel = true;
+            _openInputPanelElevatorId = match.ElevatorId;
+            _openInputPanelUserId = match.Call.Id;
         }
     }
     void CheckKeyboardInput()
     {
         if (_keyboardInput.KeyboardKeyDown(out List<ConsoleKey> keys))
         {
+            _keyPressCoolDown = 5;
             foreach (var key in keys)
             {
-                if (KeyboardInput.ConvertConsoleKeyToInt(key, out int floor) && !_openInputPanel)
+                if (KeyboardInput.ConvertConsoleKeyToInt(key, out int floor))
                 {
+                    if (floor == -1)
+                    {
+                        return;
+                    }
+                    if (_openInputPanel)
+                    {
+                        ActivateElevatorInputPanel(floor);
+                        return;
+                    }
                     ActivateFloorCallPanel(floor);
-                    break;
-                }
-                if (KeyboardInput.ConvertConsoleKeyToDirection(key, out UserCall.Direction direction) && _selectedFloor != -1)
+                    return;
+                } else if (KeyboardInput.ConvertConsoleKeyToDirection(key, out UserCall.Direction direction) && _selectedFloor != -1)
                 {
                     ActivateFloorCall(direction);
-                    break;
+                    return;
                 }
             }
         }
@@ -59,6 +94,23 @@ public class MasterState
         if (_openInputPanel)
         {
             _viewController.SetInputPanel(_elevatorOrchestrator.GetElevatorControllerById(_openInputPanelElevatorId).ReturnData().InputPanel);
+        }
+    }
+    void ClearPanels()
+    {
+        _openInputPanel = false;
+        _openInputPanelElevatorId = -1;
+        _openInputPanelUserId = -1;
+    }
+    void ActivateElevatorInputPanel(int floor)
+    {
+        if (_elevatorOrchestrator.CallElevatorPanelInput(floor, _openInputPanelElevatorId)) 
+        {
+            var call = _userCalls.First(userCall => userCall.Id == _openInputPanelUserId);
+            call.EndFloor = floor;
+            call.InElevatorId = _openInputPanelElevatorId;
+            call.State = UserCall.UserCallState.Travelling;
+            ClearPanels();
         }
     }
     void ActivateFloorCallPanel(int floor)
