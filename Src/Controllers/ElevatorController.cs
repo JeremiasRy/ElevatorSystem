@@ -121,7 +121,7 @@ public class ElevatorController
         var destinationRow = _constants.FloorPositions[ActiveObject().Destination];
         if (destinationRow == _elevator.Row)
         {
-            _doorOpenSequence = 20;
+            _doorOpenSequence = 5;
             ActiveObject().Complete();
             return;
         }

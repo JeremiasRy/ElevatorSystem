@@ -22,7 +22,7 @@ public class MasterState
         int tickCount = 0;
         while (true)
         {
-            if (tickCount++ == 2)
+            if (tickCount++ > 2 && !_openInputPanel)
             {
                 Tick();
                 tickCount = 0;
