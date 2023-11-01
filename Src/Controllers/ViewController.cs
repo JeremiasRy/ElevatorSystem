@@ -180,7 +180,7 @@ public class ViewController
         _elevator[2] = new Graphic("../../../Assets/ElevatorOpen2.txt");
         _elevator[3] = new Graphic("../../../Assets/ElevatorOpen3.txt");
         _human[0] = new Graphic("../../../Assets/Human.txt");
-        _human[1] = new Graphic("../../../Assets/Human2.txt");
+        _human[1] = new Graphic("../../../Assets/Human1.txt");
         _title = new Graphic("../../../Assets/Title.txt");
         _screenBuffer = ScreenBuffer.GetInstance();
         _constants = new Constants();
