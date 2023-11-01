@@ -5,14 +5,15 @@ namespace ElevatorSystem.Src.Graphics;
 public class ViewController
 {
     private readonly Constants _constants;
-    private readonly Graphic _human;
-    private readonly Graphic _elevator;
+    private readonly Graphic[] _human = new Graphic[2];
+    private readonly Graphic[] _elevator = new Graphic[4];
     private readonly Graphic _title;
     private readonly ArrowPanel _arrowPanel;
     private readonly Info _info;
     private readonly ScreenBuffer _screenBuffer;
     private readonly ElevatorInputPanel _elevatorInputPanel;
-    private readonly (int Row, int Col)[] _elevatorPositions = new (int Row, int Col)[ELEVATOR_COUNT];
+    private readonly (int Row, int Col, int DoorState)[] _elevatorPositions = new (int Row, int Col, int DoorSTate)[ELEVATOR_COUNT];
+    (int Row, int Col, int LegState)[] _humanPositions = Array.Empty<(int, int, int)>();
     int _openFloorInput = -1;
     void DrawElevatorInputPanel()
     {
@@ -23,9 +24,9 @@ public class ViewController
     }
     void DrawElevators()
     {
-        foreach (var (row, col) in _elevatorPositions)
+        foreach (var (row, col, doorState) in _elevatorPositions)
         {
-            foreach (PicturePixel pixel in _elevator.GetGraphic(row, col))
+            foreach (PicturePixel pixel in _elevator[doorState].GetGraphic(row, col))
             {
                 _screenBuffer.DrawToBuffer(pixel);
             }
@@ -105,9 +106,20 @@ public class ViewController
         DrawTitle();
         DrawInfo();
     }
+    void DrawHumans()
+    {
+        foreach (var (row, col, legState) in _humanPositions)
+        {
+            foreach (PicturePixel pixel in _human[legState].GetGraphic(row, col)) 
+            {
+                _screenBuffer.DrawToBuffer(pixel);
+            }
+        }
+    }
     public void Draw(bool openPanel = false)
     {
         DrawBackground();
+        DrawHumans();
         DrawElevators();
         if (_openFloorInput > -1)
         {
@@ -120,6 +132,14 @@ public class ViewController
         }
         _screenBuffer.DrawBuffer();
     }
+    public void SetHumanPositions((int Row, int Col, int LegState)[] humans)
+    {
+        _humanPositions = new (int Row, int Col, int LegState)[humans.Length]; 
+        for (int i = 0; i < humans.Length; i++)
+        {
+            _humanPositions[i] = humans[i];
+        }
+    }
     public void SetInfoData(List<ElevatorData> elevatorData, List<FloorData> floorData)
     {
         _info.SetInfoData(elevatorData, floorData);
@@ -128,19 +148,39 @@ public class ViewController
     {
         _elevatorInputPanel.SetInputPanel(inputPanel);
     }
-    public void SetElevatorPositions((int Row, int Col)[] elevatorPositions)
+    public void SetElevatorDrawInformation((int Row, int Col, int DoorSequence)[] elevatorPositions)
     {
         for (int i = 0; i < _elevatorPositions.Length; i++)
         {
             _elevatorPositions[i].Row = elevatorPositions[i].Row - ELEVATOR_HEIGHT;
             _elevatorPositions[i].Col = elevatorPositions[i].Col + PADDING;
+            _elevatorPositions[i].DoorState = OverFlowSequence(elevatorPositions[i].DoorSequence);
+        }
+        static int OverFlowSequence(int value)
+        {
+            return value switch
+            {
+                0 => 0,
+                1 => 1,
+                2 => 2,
+                3 => 3,
+                4 => 3,
+                5 => 2,
+                6 => 1,
+                7 => 0,
+                _ => -1
+            };
         }
     }
     public void SetOpenFloorInput(int floor) => _openFloorInput = floor;
     public ViewController()
     {
-        _elevator = new Graphic("../../../Assets/Elevator.txt");
-        _human = new Graphic("../../../Assets/Human.txt");
+        _elevator[0] = new Graphic("../../../Assets/Elevator.txt");
+        _elevator[1] = new Graphic("../../../Assets/ElevatorOpen1.txt");
+        _elevator[2] = new Graphic("../../../Assets/ElevatorOpen2.txt");
+        _elevator[3] = new Graphic("../../../Assets/ElevatorOpen3.txt");
+        _human[0] = new Graphic("../../../Assets/Human.txt");
+        _human[1] = new Graphic("../../../Assets/Human2.txt");
         _title = new Graphic("../../../Assets/Title.txt");
         _screenBuffer = ScreenBuffer.GetInstance();
         _constants = new Constants();

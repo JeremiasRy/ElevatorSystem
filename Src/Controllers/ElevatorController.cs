@@ -101,7 +101,6 @@ public class ElevatorController
         _primaryObjective.SetClearMethod(ClearCurrentFloorFromInputPanel);
         _primaryObjective.Destination = panelValueToDo;
         _primaryObjective.Source = SourceOfRequest.InputPanel;
-        _doorOpenSequence = 0;
     }
     public void Tick()
     {
@@ -121,7 +120,7 @@ public class ElevatorController
         var destinationRow = _constants.FloorPositions[ActiveObject().Destination];
         if (destinationRow == _elevator.Row)
         {
-            _doorOpenSequence = 5;
+            _doorOpenSequence = 7;
             ActiveObject().Complete();
             return;
         }
@@ -132,7 +131,7 @@ public class ElevatorController
     /// </summary>
     /// <returns>Nth floor or -1 if between floors</returns>
     public int ElevatorFloor() => Array.IndexOf(_constants.FloorPositions, _elevator.Row);
-    public (int Row, int Col) ElevatorPosition() => (_elevator.Row, _column);
+    public (int Row, int Col, int DoorState) ElevatorPosition() => (_elevator.Row, _column, _doorOpenSequence);
     public ElevatorData ReturnData()
     {
         _data.DestinationRow = ActiveObject().Destination == -1 ? -1 : _constants.FloorPositions[ActiveObject().Destination];

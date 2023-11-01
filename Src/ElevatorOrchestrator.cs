@@ -2,7 +2,6 @@
 using ElevatorSystem.Src.Data;
 using ElevatorSystem.Src.Inputs;
 using ElevatorSystem.Src.Simulation;
-using System.Linq;
 using static ElevatorSystem.Src.Constants;
 
 namespace ElevatorSystem.Src;
@@ -17,7 +16,7 @@ public class ElevatorOrchestrator
         .Where(elevatorController => elevatorController.IsIdleAtFloor())
         .Select(elevatorController => (elevatorController.ElevatorFloor(), elevatorController.Id))
         .ToArray();
-    public (int Row, int Column)[] GetElevatorPositions() => _elevatorControllers.Select(controller => controller.ElevatorPosition()).ToArray();
+    public (int Row, int Column, int DoorState)[] GetElevatorDrawInformation() => _elevatorControllers.Select(controller => controller.ElevatorPosition()).ToArray();
     public ElevatorController GetElevatorControllerById(int id) => _elevatorControllers.FirstOrDefault(elevatorController => elevatorController.Id == id) ?? throw new Exception("No such elevator!!!");
     public ElevatorData GetElevatorData(int id)
     {
@@ -52,13 +51,14 @@ public class ElevatorOrchestrator
             return false;
         }
         var controller = _floorControllers[floor];
-        if (direction == UserCall.Direction.Up)
+        if (direction == UserCall.Direction.Up || controller.UpCallState == FloorController.FloorCallState.Idle)
         {
             return controller.SetUpCallStateToActive();
-        } else
+        } else if (direction == UserCall.Direction.Down || controller.DownCallState == FloorController.FloorCallState.Idle)
         {
             return controller.SetDownCallStateToActive();
         }
+        return false;
     }
     public bool CallElevatorPanelInput(int floor, int elevatorId)
     {
