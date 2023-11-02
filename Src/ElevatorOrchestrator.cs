@@ -1,6 +1,5 @@
 ﻿using ElevatorSystem.Src.Controllers;
 using ElevatorSystem.Src.Data;
-using ElevatorSystem.Src.Inputs;
 using ElevatorSystem.Src.Simulation;
 using static ElevatorSystem.Src.Constants;
 
@@ -44,17 +43,17 @@ public class ElevatorOrchestrator
             elevatorController.Tick();
         }
     }
-    public bool CallElevator(int floor, UserCall.Direction direction)
+    public bool CallElevator(int floor, Human.Direction direction)
     {
         if (floor > _constants.FloorCount - 2)
         {
             return false;
         }
         var controller = _floorControllers[floor];
-        if (direction == UserCall.Direction.Up || controller.UpCallState == FloorController.FloorCallState.Idle)
+        if (direction == Human.Direction.Up || controller.UpCallState == FloorController.FloorCallState.Idle)
         {
             return controller.SetUpCallStateToActive();
-        } else if (direction == UserCall.Direction.Down || controller.DownCallState == FloorController.FloorCallState.Idle)
+        } else if (direction == Human.Direction.Down || controller.DownCallState == FloorController.FloorCallState.Idle)
         {
             return controller.SetDownCallStateToActive();
         }
