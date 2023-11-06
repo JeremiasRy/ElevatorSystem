@@ -13,7 +13,7 @@ public class Constants
     public const int PADDING = 2;
     public const int ELEVATOR_HEIGHT = 5;
     public const int ELEVATOR_WIDTH = 9;
-    public const int ELEVATOR_COUNT = 4;
+    public const int ELEVATOR_COUNT = 2;
     public const int TITLE_WIDTH = 35;
     public const int TITLE_HEIGHT = 13;
     public int[] CablePositions;

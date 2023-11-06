@@ -25,10 +25,6 @@ public class MasterState
             if (!_openInputPanel)
             {
                 Tick();
-                tickCount = 0;
-            }
-            if (!_openInputPanel)
-            {
                 FireCalls();
                 CheckUserCalls();
             }
@@ -39,7 +35,7 @@ public class MasterState
             _keyPressCoolDown = _keyPressCoolDown - 1 < 0 ? 0 : _keyPressCoolDown - 1;
             SetupView();
             _viewController.Draw(_openInputPanel);
-            Thread.Sleep(20);
+            Thread.Sleep(30);
         }
     }
     void FireCalls()
