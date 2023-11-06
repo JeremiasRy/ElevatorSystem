@@ -1,4 +1,5 @@
 ﻿using System.Runtime.InteropServices;
+using ElevatorSystem.Src.Simulation;
 
 namespace ElevatorSystem.Src.Inputs;
 
@@ -30,15 +31,15 @@ public class KeyboardInput
         return value >= 0;
         
     }
-    public static bool ConvertConsoleKeyToDirection(ConsoleKey key, out UserCall.Direction direction)
+    public static bool ConvertConsoleKeyToDirection(ConsoleKey key, out Human.Direction direction)
     {
-        direction = UserCall.Direction.Up;
+        direction = Human.Direction.Up;
         int result = ConsoleKeyStringToDirection(key.ToString());
         if (result < 0)
         {
             return false;
         }
-        direction = (UserCall.Direction)result;
+        direction = (Human.Direction)result;
         return true;
     }
     static int ConsoleKeyStringToDirection(string key)

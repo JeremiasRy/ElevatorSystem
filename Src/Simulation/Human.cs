@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ElevatorSystem.Src.Inputs;
+namespace ElevatorSystem.Src.Simulation;
 
-public class UserCall
+public class Human
 {
-    static readonly Random _random = new ();
+    static readonly Random _random = new();
     static int _idCount = 1;
     static readonly Constants _constants = new();
     static readonly int _roomToWalk = _constants.SimulationArea - _constants.TotalElevatorShaftWidth - 7;
@@ -20,7 +20,7 @@ public class UserCall
         {
             return 0;
         }
-        _legState = _legState + 1 > 1 ? 0 : 1; 
+        _legState = _legState + 1 > 1 ? 0 : 1;
         return _legState;
     }
     public UserCallState State { get; set; }
@@ -32,37 +32,40 @@ public class UserCall
     public Direction RequestDirection { get; set; }
     public void Walk()
     {
-        if (State == UserCallState.FireCall)
+        switch (State)
         {
-            State = UserCallState.WaitingForElevator;
-            return;
-        }
-        if (State == UserCallState.ArrivingToScene)
-        {
-            WalkState++;
-            if (WalkState == _roomToWalk)
-            {
-                State = UserCallState.FireCall;
-            }
-            return;
-        }
-        if (State == UserCallState.LeavingTheScene)
-        {
-            WalkState--;
-            if (WalkState == 0)
-            {
-                State = UserCallState.Done;
-            }
-            return;
+            case UserCallState.Travelling:
+            case UserCallState.WaitingForElevator:
+                break;
+            case UserCallState.FireCall:
+                {
+                    State = UserCallState.WaitingForElevator;
+                } break;
+            case UserCallState.ArrivingToScene:
+                {
+                    WalkState++;
+                    if (WalkState == _roomToWalk)
+                    {
+                        State = UserCallState.FireCall;
+                    }
+                } break;
+            case UserCallState.LeavingTheScene:
+                {
+                    WalkState--;
+                    if (WalkState == 0)
+                    {
+                        State = UserCallState.Done;
+                    }
+                } break;
         }
     }
-    public UserCall(int floor, Direction direction)
+    public Human(int floor, Direction direction)
     {
         Id = _idCount++;
         StartFloor = floor;
         RequestDirection = direction;
         UserWeight = _random.Next(50, 110);
-        
+
     }
     public enum Direction
     {

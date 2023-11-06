@@ -1,6 +1,7 @@
 ﻿using ElevatorSystem.Src.Controllers;
 using ElevatorSystem.Src.Graphics;
 using ElevatorSystem.Src.Inputs;
+using ElevatorSystem.Src.Simulation;
 using System.Drawing;
 
 namespace ElevatorSystem.Src;
@@ -40,9 +41,9 @@ public class MasterState
     }
     void FireCalls()
     {
-        foreach (var callToFire in _humanController.CallsToFire())
+        foreach (var (floor, direction) in _humanController.CallsToFire())
         {
-            _elevatorOrchestrator.CallElevator(callToFire.StartFloor, callToFire.RequestDirection);
+            _elevatorOrchestrator.CallElevator(floor, direction);
         }
     }
     void CheckUserCalls()
@@ -51,7 +52,7 @@ public class MasterState
             .Where(userCall => _elevatorOrchestrator.GetElevatorsIdleAtFloor().Any(elevator => elevator.Floor == userCall.StartFloor))
             .Select(userCall => new
             {
-               Call = userCall,
+               userCall.UserId,
                ElevatorId = _elevatorOrchestrator.GetElevatorsIdleAtFloor().First(elevator => elevator.Floor == userCall.StartFloor).Id,
            });
         if (matchingWaiting.Any())
@@ -59,13 +60,16 @@ public class MasterState
             var match = matchingWaiting.First();
             _openInputPanel = true;
             _openInputPanelElevatorId = match.ElevatorId;
-            _openInputPanelUserId = match.Call.Id;
+            _openInputPanelUserId = match.UserId;
         }
         var matchingArrived = _humanController.HumansTravelling()
-            .FirstOrDefault(userCall => _elevatorOrchestrator.GetElevatorsIdleAtFloor().Any(elevator => elevator.Floor == userCall.EndFloor));
-        if (matchingArrived is not null)
+            .Where(userCall => _elevatorOrchestrator.GetElevatorsIdleAtFloor().Any(elevator => elevator.Floor == userCall.EndFloor));
+        if (matchingArrived.Any())
         {
-            _humanController.SetCallToLeaving(matchingArrived.Id);
+            foreach (var (id, _)in matchingArrived)
+            {
+                _humanController.SetCallToLeaving(id);
+            }
         }
     }
     void CheckKeyboardInput()
@@ -88,7 +92,7 @@ public class MasterState
                     }
                     ActivateFloorCallPanel(floor);
                     return;
-                } else if (KeyboardInput.ConvertConsoleKeyToDirection(key, out UserCall.Direction direction) && _selectedFloor != -1)
+                } else if (KeyboardInput.ConvertConsoleKeyToDirection(key, out Human.Direction direction) && _selectedFloor != -1)
                 {
                     ActivateFloorCall(direction);
                     return;
@@ -130,7 +134,7 @@ public class MasterState
         }
         _selectedFloor = floor;
     }
-    void ActivateFloorCall(UserCall.Direction direction)
+    void ActivateFloorCall(Human.Direction direction)
     {
         _humanController.AppendHuman(_selectedFloor, direction);
         _selectedFloor = -1;

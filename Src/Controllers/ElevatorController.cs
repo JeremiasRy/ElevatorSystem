@@ -53,13 +53,13 @@ public class ElevatorController
         if (ActiveObject().Destination > -1 && ActiveObject().Source == SourceOfRequest.InputPanel && everyoneIsBusy)
         {
             var myDirection = _constants.FloorPositions[ActiveObject().Destination] - _elevator.Row;
-            if (myDirection < 0 && activeFloor.UpCallState == FloorController.FloorCallState.Active)
+            if (myDirection > 0 && activeFloor.UpCallState == FloorController.FloorCallState.Active)
             {
                 _overrideObjective.Destination = activeFloor.NthFloor;
                 _overrideObjective.Source = SourceOfRequest.FloorCall;
                 _overrideObjective.SetClearMethod(activeFloor.SetUpCallStateToIdle);
             }
-            if (myDirection > 0 && activeFloor.DownCallState == FloorController.FloorCallState.Active)
+            if (myDirection < 0 && activeFloor.DownCallState == FloorController.FloorCallState.Active)
             {
                 _overrideObjective.Destination = activeFloor.NthFloor;
                 _overrideObjective.Source = SourceOfRequest.FloorCall;
@@ -90,7 +90,7 @@ public class ElevatorController
         {
             return;
         }
-        var panelValueToDo = _elevatorInputPanel.Where(kv => kv.Value).OrderBy(kv => Math.Abs(_constants.FloorPositions[kv.Key] - ElevatorFloor())).First().Key;
+        var panelValueToDo = _elevatorInputPanel.Where(kv => kv.Value).OrderByDescending(kv => Math.Abs(_constants.FloorPositions[kv.Key] - ElevatorFloor())).First().Key; //Here we could do some ordering of the input ascending when going down, descending when moving up
         if (_primaryObjective.Destination != -1 && _primaryObjective.Source == SourceOfRequest.FloorCall)
         {
             _overrideObjective.Destination = panelValueToDo;
