@@ -1,4 +1,5 @@
 # ElevatorSystem
+![cool stuff](https://raw.githubusercontent.com/JeremiasRy/ElevatorSystem/master/Elevator.gif)
 
 An elevator simulator? You set human to call an elevator (press the floor number after that arrow key for direction). <br/> 
 When the human reaches the elevator shaft it fires the call, an elevator comes to pick him up and a panel opens (this is the panel inside the elevator) <br/>
