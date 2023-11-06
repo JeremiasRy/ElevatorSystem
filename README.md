@@ -6,7 +6,6 @@ When the human reaches the elevator shaft it fires the call, an elevator comes t
 You choose where this human wants to go and then the elevator does what it does. <br/><br/>
 
 The logic is nowhere near 100% but it gets the basics done, calls inside the elevator override calls from floors except if the calls are on the current path and to the right direction <br/>
-And calls inside the elevator are also ordered accordingly. 
 
 ## Specs
 
